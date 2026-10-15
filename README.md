@@ -41,7 +41,7 @@ Tahoe is a CSS theme. It loads nothing from the internet (no remote fonts or ima
 
 ## Credits
 
-Tahoe builds on [Cupertino](https://github.com/svnaxis/obsidian-cupertino) by Alexis C, under the MIT License; its notice is included in [LICENSE](LICENSE).
+Tahoe builds on [Cupertino](https://github.com/svnaxis/obsidian-cupertino) by Alexis C, under the MIT License; its notice is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Tahoe is an independent project. It isn't affiliated with, or endorsed by, Apple.
 
