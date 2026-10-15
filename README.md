@@ -38,10 +38,27 @@ With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) p
 
 Tahoe is a CSS theme. It loads nothing from the internet (no remote fonts or images) and collects nothing.
 
-## More from Tahoe
+<!-- tahoe-family -->
+## The Tahoe family
 
-- **[Tahoe Run](https://github.com/krishnanefx/obsidian-tahoe-run):** run the code blocks in your notes, like a notebook: Python with a debugger and variables view, MATLAB, and ~25 other languages.
-- **[Tahoe Math](https://github.com/krishnanefx/obsidian-tahoe-math):** a calculator in your notes; type an expression ending in `=` and the answer appears.
+Tahoe is a set of plugins and a theme that work on their own and fit together.
+
+| | | |
+| --- | --- | --- |
+| **[Tahoe Run](https://github.com/krishnanefx/obsidian-tahoe-run)** | Run the code in your notes, like a notebook: Python with a debugger and variables view, MATLAB, and ~25 other languages. | in the community directory |
+| **[Tahoe Math](https://github.com/krishnanefx/obsidian-tahoe-math)** | A calculator in your notes: type an expression ending in `=` and the answer appears. | in the community directory |
+| **Tahoe** | A clean, Mac-like theme, in light and dark. | this one |
+| **Tahoe Code** | An IDE in your code blocks: suggestions, checking as you type, quick fixes, go to definition, formatting and AI edits. | coming soon |
+| **Tahoe Glass** | Real refraction for the Tahoe theme's glass, and System Settings–style settings pages. | coming soon |
+| **Tahoe Organize** | Keep a growing vault tidy: inbox triage, Smart Folders, coloured tags, link suggestions, vault health and text from images. | coming soon |
+| **Tahoe Intelligence** | On-device AI for your notes: related notes, distilling permanent notes, Writing Tools and more. | coming soon |
+
+**Better together**
+
+- **With Tahoe Glass (coming soon):** the toolbar, menus and command palette get real refraction, with dispersion and glare, plus a pointer highlight; settings pages get System Settings–style header cards.
+- **With [Tahoe Run](https://github.com/krishnanefx/obsidian-tahoe-run):** the Run capsules and output cards follow the theme's colours and controls.
+- **With [Tahoe Math](https://github.com/krishnanefx/obsidian-tahoe-math):** answers appear in the theme's accent colour.
+<!-- /tahoe-family -->
 
 ## Credits
 
