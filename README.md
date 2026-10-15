@@ -51,7 +51,7 @@ Tahoe is a set of plugins and a theme that work on their own and fit together.
 | **[Tahoe Code](https://github.com/krishnanefx/obsidian-tahoe-code)** | An IDE in your code blocks: suggestions, checking as you type, quick fixes, go to definition, formatting and AI edits. | available |
 | **Tahoe Glass** | Real refraction for the Tahoe theme's glass, and System Settings–style settings pages. | coming soon |
 | **[Tahoe Organize](https://github.com/krishnanefx/obsidian-tahoe-organize)** | Keep a growing vault tidy: inbox triage, smart folders, colored tags, link suggestions, vault health, literature notes and text from images. | available |
-| **Tahoe Intelligence** | On-device AI for your notes: ask your notes, related notes, distilling permanent notes and more. | coming soon |
+| **[Tahoe Intelligence](https://github.com/krishnanefx/obsidian-tahoe-intelligence)** | On-device AI for your notes: ask your notes, related notes, distilling permanent notes and more. | available |
 
 **Better together**
 
@@ -60,6 +60,7 @@ Tahoe is a set of plugins and a theme that work on their own and fit together.
 - **With [Tahoe Code](https://github.com/krishnanefx/obsidian-tahoe-code):** suggestion lists, hover docs and problem cards in code blocks become solid cards with the theme's corners.
 - **With [Tahoe Math](https://github.com/krishnanefx/obsidian-tahoe-math):** answers appear in the theme's accent colour.
 - **With [Tahoe Organize](https://github.com/krishnanefx/obsidian-tahoe-organize):** Vault health, iCloud conflicts and inbox triage use the theme's settings-style cards.
+- **With [Tahoe Intelligence](https://github.com/krishnanefx/obsidian-tahoe-intelligence):** the Ask, Writing help and Distill sheets and the ✦ button take the theme's glass.
 <!-- /tahoe-family -->
 
 ## Credits
