@@ -1,0 +1,68 @@
+name: Bug report
+description: Something in the theme doesn't work, or doesn't look, as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting it. The more exact the steps, the sooner it can be fixed. For a question rather than a bug, Discussions is the place."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: And what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: "Where in Obsidian it is, and what you did to see it."
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Tahoe version
+      description: "In Settings → Appearance → Themes."
+    validations:
+      required: true
+  - type: input
+    id: obsidian
+    attributes:
+      label: Obsidian version
+      description: "In Settings → General."
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      multiple: true
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - iPhone or iPad
+        - Android
+    validations:
+      required: true
+  - type: input
+    id: extra
+    attributes:
+      label: Mode and changes
+      description: "Light or dark, and any CSS snippets or Style Settings changes."
+      placeholder: "Dark, no snippets"
+  - type: checkboxes
+    id: alone
+    attributes:
+      label: With other plugins off
+      options:
+        - label: "It still happens with community plugins and CSS snippets turned off."
+  - type: textarea
+    id: more
+    attributes:
+      label: Screenshots or anything else
