@@ -27,8 +27,7 @@ With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) p
 - set the glass level, from Clear to Tinted;
 - hide the frosted toolbar band;
 - hide the sidebar file icons;
-- strike through completed tasks;
-- hide the tab bar when a pane has only one tab.
+- strike through completed tasks.
 
 ## Tips
 
@@ -38,6 +37,11 @@ With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) p
 ## Disclosures
 
 Tahoe is a CSS theme. It loads nothing from the internet (no remote fonts or images) and collects nothing.
+
+## More from Tahoe
+
+- **[Tahoe Run](https://github.com/krishnanefx/obsidian-tahoe-run):** run the code blocks in your notes, like a notebook: Python with a debugger and variables view, MATLAB, and ~25 other languages.
+- **[Tahoe Math](https://github.com/krishnanefx/obsidian-tahoe-math):** a calculator in your notes; type an expression ending in `=` and the answer appears.
 
 ## Credits
 

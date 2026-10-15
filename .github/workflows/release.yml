@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write # attestations: sign with GitHub's OIDC identity
+  attestations: write
 
 jobs:
   release:
@@ -24,6 +26,15 @@ jobs:
             echo "Tag $tag doesn't match manifest.json version $version"
             exit 1
           fi
+
+      # Provenance: anyone can check these files were built here, from this commit
+      # (gh attestation verify <file> --repo krishnanefx/obsidian-tahoe-theme).
+      - name: Attest the release files
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            theme.css
+            manifest.json
 
       - name: Draft the release
         env:
