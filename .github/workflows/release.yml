@@ -1,0 +1,33 @@
+# Push a tag that matches manifest.json's version (e.g. 1.1.1) and this makes
+# a draft release with theme.css and manifest.json. Check the draft on GitHub,
+# then publish it.
+name: Release
+
+on:
+  push:
+    tags: ["*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches manifest.json
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          version="$(node -p "require('./manifest.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "Tag $tag doesn't match manifest.json version $version"
+            exit 1
+          fi
+
+      - name: Draft the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release create "$tag" --title "$tag" --draft theme.css manifest.json

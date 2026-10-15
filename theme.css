@@ -1,0 +1,3056 @@
+/*
+ * Tahoe — a Liquid Glass theme for Obsidian
+ *
+ * Matches macOS Golden Gate: edge-to-edge sidebars with colored icons, a
+ * uniform glass toolbar, Liquid Glass with a Clear ↔ Tinted level, darker
+ * edges and brighter highlights, and Apple-native typography and color.
+ *
+ * Builds on Cupertino by Alexis C (MIT) — github.com/svnaxis/obsidian-cupertino
+ * Not affiliated with, or endorsed by, Apple.
+ * Pair with the optional "Tahoe Glass" plugin for real refraction and
+ * pointer-reactive highlights on macOS.
+ */
+
+/* @settings
+
+name: Tahoe
+id: tahoe
+settings:
+  -
+    id: tahoe-glass-heading
+    title: Glass
+    type: heading
+    level: 2
+    collapsed: false
+  -
+    id: tahoe-glass-level
+    title: Glass level
+    description: From Clear (0) to Tinted (1). The Tahoe Glass plugin has the same slider.
+    type: variable-number-slider
+    default: 0.5
+    min: 0
+    max: 1
+    step: 0.05
+  -
+    id: tahoe-no-scroll-edge
+    title: Hide the toolbar band
+    description: Let notes scroll under the toolbar without the glass band
+    type: class-toggle
+  -
+    id: tahoe-layout-heading
+    title: Sidebar & editor
+    type: heading
+    level: 2
+    collapsed: false
+  -
+    id: tahoe-no-tree-icons
+    title: Hide sidebar file icons
+    description: Remove the colored folder and file icons from the file explorer
+    type: class-toggle
+  -
+    id: tahoe-strike-done
+    title: Strike through completed tasks
+    type: class-toggle
+  -
+    id: tahoe-flat-tabs
+    title: Hide the tab bar when a pane has one tab
+    type: class-toggle
+*/
+
+/* =========================================================================
+   1. Tokens
+   ========================================================================= */
+
+body {
+  /* Geometry — concentric radii: panel = window − inset */
+  /* Golden Gate: one, gentler corner radius family across windows and panels */
+  --tahoe-inset: 8px;
+  --tahoe-radius-window: 16px;
+  --tahoe-radius-panel: calc(var(--tahoe-radius-window) - var(--tahoe-inset));
+  --tahoe-radius-menu: 12.5px; /* measured from a macOS 26 menu */
+  --tahoe-radius-menu-item: calc(var(--tahoe-radius-menu) - 5px); /* concentric: the menu's radius less its padding */
+  --tahoe-radius-popover: 14px;
+  --tahoe-radius-sheet: 16px;
+  --tahoe-radius-card: 10px;
+  --tahoe-capsule: 999px;
+
+  --tahoe-control-h: 36px;     /* toolbar capsule height */
+  --tahoe-control-pad: 3px;    /* platter padding around items */
+  --tahoe-vh: 0px;             /* view-header row height, set below when shown */
+  --tahoe-toolbar: calc(var(--header-height) + var(--tahoe-vh));
+
+  /* Materials — one Liquid Glass level drives every surface, like the
+     Clear ↔ Tinted slider in System Settings → Appearance (0 clear, 1 tinted) */
+  --tahoe-glass-level: 0.5;
+  --tahoe-blur: calc(4px + 14px * var(--tahoe-glass-level));
+  --tahoe-control-blur: var(--tahoe-blur);
+  --tahoe-toolbar-blur: calc(10px + 20px * var(--tahoe-glass-level));
+  --tahoe-saturate: 1.9;
+  --tahoe-menu-blur: calc(14px + 24px * var(--tahoe-glass-level));
+  --tahoe-sheet-blur: calc(28px + 24px * var(--tahoe-glass-level));
+
+  /* Motion */
+  --tahoe-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --tahoe-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.4%, 1.067, 1.099 24.3%, 1.108 26%, 1.103 28.2%, 1.072 32.2%, 1.006 41.2%, 0.98 47.2%, 0.979 52.2%, 0.999 72.5%, 1);
+  --anim-motion-baseline: var(--tahoe-ease);
+
+  /* Typography */
+  --font-interface-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-text-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-monospace-theme: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+  --font-ui-smaller: 11px;
+  --font-ui-small: 13px;
+  --font-ui-medium: 13px;
+  --font-ui-large: 20px;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --bold-weight: 650;
+
+  --line-height-normal: 1.55;
+  --line-height-tight: 1.3;
+
+  --h1-size: 1.75em;
+  --h1-weight: 700;
+  --h1-line-height: 1.2;
+  --h1-letter-spacing: -0.022em;
+  --h2-size: 1.42em;
+  --h2-weight: 700;
+  --h2-line-height: 1.25;
+  --h2-letter-spacing: -0.018em;
+  --h3-size: 1.2em;
+  --h3-weight: 650;
+  --h3-letter-spacing: -0.012em;
+  --h4-size: 1.06em;
+  --h4-weight: 650;
+  --h5-size: 1em;
+  --h5-weight: 650;
+  --h6-size: 0.94em;
+  --h6-weight: 650;
+  --h6-color: var(--text-muted);
+
+  --inline-title-size: 2.05em;
+  --inline-title-weight: 750;
+  --inline-title-line-height: 1.15;
+
+  /* Obsidian geometry */
+  --header-height: 52px;
+  --radius-s: 6px;
+  --radius-m: 10px;
+  --radius-l: 16px;
+  --radius-xl: 22px;
+  --clickable-icon-radius: 8px;
+  --input-height: 28px;
+  --input-radius: 8px;
+  --button-radius: var(--tahoe-capsule);
+  --input-font-weight: 500;
+  --border-width: 1px;
+  --divider-width: 1px;
+  --icon-size: 16px;
+  --icon-stroke: 1.75px;
+  --icon-s-stroke-width: 1.75px;
+  --icon-m-stroke-width: 1.75px;
+  --icon-l-stroke-width: 1.75px;
+
+  --tab-radius: var(--tahoe-capsule);
+  --tab-curve: 0px;
+  --tab-outline-width: 0px;
+  --tab-outline-color: transparent;
+  --tab-font-size: 12.5px;
+  --tab-font-weight: 500;
+  --tab-width: 200px;
+  --tab-max-width: 240px;
+  --tab-text-color: var(--text-muted);
+  --tab-text-color-focused: var(--text-muted);
+  --tab-text-color-focused-active: var(--text-normal);
+  --tab-text-color-focused-active-current: var(--text-normal);
+  --tab-container-background: transparent;
+  --tab-background-active: transparent;
+  --titlebar-background: transparent;
+  --titlebar-background-focused: transparent;
+  --titlebar-border-width: 0px;
+  --file-header-border: none;
+  --file-header-background: transparent;
+  --file-header-font-size: 13px;
+  --file-header-font-weight: 600;
+
+  --ribbon-background: transparent;
+  --ribbon-background-collapsed: transparent;
+
+  --nav-item-size: 13px;
+  --nav-item-radius: 8px;
+  --nav-item-padding: 5px 10px 5px 26px;
+  --nav-item-parent-padding: 5px 10px 5px 26px;
+  --nav-item-children-padding-start: 0px;
+  --nav-item-children-margin-start: 14px;
+  --nav-item-weight: 400;
+  --nav-item-weight-active: 500;
+  --nav-indentation-guide-width: 0px;
+  --nav-collapse-icon-color: var(--text-faint);
+  --nav-collapse-icon-color-collapsed: var(--text-faint);
+
+  --status-bar-radius: var(--tahoe-capsule);
+  --status-bar-border-width: 0;
+  --status-bar-font-size: 11.5px;
+
+  --menu-radius: var(--tahoe-radius-menu);
+  --menu-padding: 5px;
+  --menu-border-width: 0;
+  --modal-radius: var(--tahoe-radius-sheet);
+  --modal-border-width: 0;
+  --prompt-border-width: 0;
+  --prompt-width: 680px;
+  --popover-width: 460px;
+
+  --toggle-radius: var(--tahoe-capsule);
+  --toggle-thumb-radius: var(--tahoe-capsule);
+  --toggle-width: 38px;
+  --toggle-thumb-width: 22px;
+  --toggle-thumb-height: 18px;
+  --toggle-border-width: 2px;
+  --toggle-s-width: var(--toggle-width);
+  --toggle-s-thumb-width: var(--toggle-thumb-width);
+  --toggle-s-thumb-height: var(--toggle-thumb-height);
+  --toggle-s-border-width: var(--toggle-border-width);
+  --toggle-thumb-color: #ffffff;
+
+  --slider-track-height: 4px;
+  --slider-thumb-height: 16px;
+  --slider-thumb-width: 24px;
+  --slider-thumb-radius: var(--tahoe-capsule);
+  --slider-thumb-y: -6px;
+  --slider-thumb-border-width: 0px;
+
+  --checkbox-radius: 4px;
+  --checkbox-size: 15px;
+  --checkbox-border-color: var(--tahoe-label-4);
+  --checkbox-border-color-hover: var(--tahoe-label-3);
+  --checkbox-color: var(--interactive-accent);
+  --checkbox-color-hover: var(--interactive-accent-hover);
+  --checkbox-marker-color: #ffffff;
+  --checklist-done-decoration: none;
+  --checklist-done-color: var(--text-muted);
+
+  --setting-items-radius: var(--tahoe-radius-card);
+  --setting-items-border-width: 0px;
+  --setting-items-padding-x: 14px;
+  --setting-items-padding-y: 11px;
+  --setting-items-divider-width: 1px;
+
+  --callout-radius: var(--tahoe-radius-card);
+  --callout-padding: 12px 16px;
+  --callout-border-width: 0px;
+  --callout-title-weight: 650;
+  --callout-blend-mode: normal;
+
+  --code-radius: 6px;
+  --code-size: 0.875em;
+  --blockquote-border-thickness: 3px;
+  --blockquote-font-style: normal;
+  --hr-thickness: 1px;
+  --list-marker-color: var(--text-faint);
+  --list-marker-color-collapsed: var(--interactive-accent);
+  --list-bullet-size: 0.32em;
+  --link-decoration: none;
+  --link-decoration-hover: underline;
+  --link-external-decoration: none;
+  --link-external-decoration-hover: underline;
+  --link-unresolved-opacity: 0.55;
+  --link-unresolved-decoration-style: dotted;
+  --link-unresolved-decoration-color: hsla(var(--interactive-accent-hsl), 0.5);
+  --tag-radius: var(--tahoe-capsule);
+  --tag-padding-x: 0.6em;
+  --tag-padding-y: 0.12em;
+  --tag-size: 0.85em;
+  --tag-weight: 500;
+  --tag-decoration: none;
+  --tag-decoration-hover: none;
+  --tag-border-width: 0px;
+  --table-border-width: 1px;
+  --table-header-weight: 600;
+  --table-header-size: 0.92em;
+  --table-cell-padding: 8px 12px;
+  --embed-border-start: none;
+  --embed-padding: 4px 16px;
+  --metadata-label-font-size: 13px;
+  --metadata-input-font-size: 13px;
+  --metadata-property-radius: 8px;
+  --metadata-property-radius-hover: 8px;
+  --metadata-property-radius-focus: 8px;
+  --metadata-divider-width: 0px;
+  --file-margins: 32px 32px;
+}
+
+body.show-view-header {
+  --tahoe-vh: 40px;
+}
+
+/* -------------------------------------------------------------------------
+   Light appearance
+   ------------------------------------------------------------------------- */
+
+.theme-light {
+  color-scheme: light;
+
+  --tahoe-bg: #ffffff;
+  --tahoe-bg-alt: #f5f5f7;
+  --tahoe-panel: #ececee;
+  --tahoe-panel-translucent: rgb(236 236 238 / calc(0.35 + 0.5 * var(--tahoe-glass-level)));
+  --tahoe-sidebar-edge: rgb(0 0 0 / 0.07);
+  --tahoe-sheet: #f6f6f8;
+  --tahoe-card: #ffffff;
+
+  --tahoe-label: #1d1d1f;
+  --tahoe-label-2: #6e6e73;
+  --tahoe-label-3: #a1a1a6;
+  --tahoe-label-4: #c7c7cc;
+
+  --tahoe-fill-1: rgb(120 120 128 / 0.2);
+  --tahoe-fill-2: rgb(120 120 128 / 0.16);
+  --tahoe-fill-3: rgb(120 120 128 / 0.12);
+  --tahoe-fill-4: rgb(120 120 128 / 0.08);
+  --tahoe-separator: rgb(0 0 0 / 0.09);
+  --tahoe-separator-strong: rgb(0 0 0 / 0.16);
+
+  /* Liquid Glass — regular (controls), thick (menus), sheet (modals), toolbar */
+  --tahoe-glass: rgb(255 255 255 / calc(0.24 + 0.6 * var(--tahoe-glass-level)));
+  --tahoe-glass-hover: rgb(255 255 255 / calc(0.42 + 0.52 * var(--tahoe-glass-level)));
+  --tahoe-control-tint: var(--tahoe-glass);
+  --tahoe-glass-thick: rgb(250 250 252 / calc(0.55 + 0.4 * var(--tahoe-glass-level)));
+  --tahoe-glass-sheet: rgb(248 248 250 / calc(0.8 + 0.18 * var(--tahoe-glass-level)));
+  --tahoe-glass-selected: rgb(255 255 255 / 0.96);
+  --tahoe-toolbar-material: color-mix(in srgb, var(--background-primary) calc(52% + 42% * var(--tahoe-glass-level)), transparent);
+  --tahoe-toolbar-edge: rgb(0 0 0 / 0.11);
+  --tahoe-rim-hi: rgb(255 255 255 / 1);
+  --tahoe-rim-lo: rgb(255 255 255 / 0.6);
+  --tahoe-edge: rgb(0 0 0 / 0.17);
+  --tahoe-glow-color: 255 255 255;
+  --tahoe-glow-alpha: 0.65;
+
+  /* Golden Gate glass: darkened edge, brighter specular highlight */
+  --tahoe-glass-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.95),
+    inset 0 -0.5px 0 0 rgb(255 255 255 / 0.5),
+    inset 0 0 0 0.5px rgb(0 0 0 / 0.05),
+    0 0 0 0.5px var(--tahoe-edge),
+    0 2px 6px -1px rgb(0 0 0 / 0.1),
+    0 8px 20px -6px rgb(0 0 0 / 0.1);
+  --tahoe-glass-shadow-raised:
+    inset 0 0.5px 0 0 rgb(255 255 255 / 1),
+    0 0 0 0.5px rgb(0 0 0 / 0.08),
+    0 1px 2px rgb(0 0 0 / 0.08),
+    0 2px 8px -2px rgb(0 0 0 / 0.1);
+  --tahoe-float-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.8),
+    0 0 0 0.5px rgb(0 0 0 / 0.16),
+    0 10px 28px -6px rgb(0 0 0 / 0.2),
+    0 22px 60px -10px rgb(0 0 0 / 0.16);
+  --tahoe-panel-shadow:
+    0 0 0 0.5px rgb(0 0 0 / 0.07),
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 6px 22px -8px rgb(0 0 0 / 0.12);
+
+  /* Apple system colors */
+  --color-red-rgb: 255, 59, 48;
+  --color-orange-rgb: 255, 149, 0;
+  --color-yellow-rgb: 255, 204, 0;
+  --color-green-rgb: 52, 199, 89;
+  --color-cyan-rgb: 50, 173, 230;
+  --color-blue-rgb: 0, 122, 255;
+  --color-purple-rgb: 175, 82, 222;
+  --color-pink-rgb: 255, 45, 85;
+  --color-red: #ff3b30;
+  --color-orange: #ff9500;
+  --color-yellow: #ffcc00;
+  --color-green: #34c759;
+  --color-cyan: #32ade6;
+  --color-blue: #007aff;
+  --color-purple: #af52de;
+  --color-pink: #ff2d55;
+
+  --color-base-00: #ffffff;
+  --color-base-05: #fbfbfd;
+  --color-base-10: #f5f5f7;
+  --color-base-20: #f2f2f4;
+  --color-base-25: #ececee;
+  --color-base-30: #e5e5ea;
+  --color-base-35: #dcdce0;
+  --color-base-40: #d1d1d6;
+  --color-base-50: #aeaeb2;
+  --color-base-60: #8e8e93;
+  --color-base-70: #6e6e73;
+  --color-base-100: #1d1d1f;
+
+  --background-modifier-form-field: #ffffff;
+  --interactive-normal: #ffffff;
+  --interactive-hover: #fafafa;
+  --input-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.8),
+    0 0 0 0.5px rgb(0 0 0 / 0.14),
+    0 0.5px 1.5px rgb(0 0 0 / 0.1);
+  --input-shadow-hover:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.8),
+    0 0 0 0.5px rgb(0 0 0 / 0.2),
+    0 1px 2px rgb(0 0 0 / 0.12);
+
+  /* Xcode Default (Light) */
+  --code-normal: #1d1d1f;
+  --code-comment: #5d6c79;
+  --code-function: #326d74;
+  --code-important: #c41a16;
+  --code-keyword: #9b2393;
+  --code-operator: #1d1d1f;
+  --code-property: #3900a0;
+  --code-punctuation: #6e6e73;
+  --code-string: #c41a16;
+  --code-tag: #0b4f79;
+  --code-value: #1c00cf;
+
+  --text-highlight-bg: rgb(255 204 0 / 0.38);
+  --text-highlight-bg-active: rgb(255 149 0 / 0.4);
+}
+
+/* -------------------------------------------------------------------------
+   Dark appearance
+   ------------------------------------------------------------------------- */
+
+.theme-dark {
+  color-scheme: dark;
+
+  --tahoe-bg: #1e1e1f;
+  --tahoe-bg-alt: #262628;
+  --tahoe-panel: #29292b;
+  --tahoe-panel-translucent: rgb(41 41 43 / calc(0.35 + 0.5 * var(--tahoe-glass-level)));
+  --tahoe-sidebar-edge: rgb(0 0 0 / 0.5);
+  --tahoe-sheet: #232325;
+  --tahoe-card: rgb(255 255 255 / 0.05);
+
+  --tahoe-label: #f5f5f7;
+  --tahoe-label-2: #a1a1a6;
+  --tahoe-label-3: #6e6e73;
+  --tahoe-label-4: #48484a;
+
+  --tahoe-fill-1: rgb(120 120 128 / 0.36);
+  --tahoe-fill-2: rgb(120 120 128 / 0.32);
+  --tahoe-fill-3: rgb(118 118 128 / 0.24);
+  --tahoe-fill-4: rgb(255 255 255 / 0.07);
+  --tahoe-separator: rgb(255 255 255 / 0.09);
+  --tahoe-separator-strong: rgb(255 255 255 / 0.16);
+
+  --tahoe-glass: rgb(58 58 62 / calc(0.22 + 0.56 * var(--tahoe-glass-level)));
+  --tahoe-glass-hover: rgb(72 72 78 / calc(0.36 + 0.5 * var(--tahoe-glass-level)));
+  --tahoe-control-tint: var(--tahoe-glass);
+  --tahoe-glass-thick: rgb(40 40 44 / calc(0.55 + 0.4 * var(--tahoe-glass-level)));
+  --tahoe-glass-sheet: rgb(34 34 37 / calc(0.8 + 0.18 * var(--tahoe-glass-level)));
+  --tahoe-glass-selected: rgb(255 255 255 / 0.16);
+  --tahoe-toolbar-material: color-mix(in srgb, var(--background-primary) calc(52% + 42% * var(--tahoe-glass-level)), transparent);
+  --tahoe-toolbar-edge: rgb(0 0 0 / 0.6);
+  --tahoe-rim-hi: rgb(255 255 255 / 0.5);
+  --tahoe-rim-lo: rgb(255 255 255 / 0.18);
+  --tahoe-edge: rgb(0 0 0 / 0.72);
+  --tahoe-glow-color: 255 255 255;
+  --tahoe-glow-alpha: 0.18;
+
+  --tahoe-glass-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.3),
+    inset 0 -0.5px 0 0 rgb(255 255 255 / 0.08),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.08),
+    0 0 0 0.5px var(--tahoe-edge),
+    0 4px 14px -2px rgb(0 0 0 / 0.45);
+  --tahoe-glass-shadow-raised:
+    inset 0 0.5px 0 0 rgb(255 255 255 / 0.22),
+    0 0 0 0.5px rgb(0 0 0 / 0.4),
+    0 2px 6px rgb(0 0 0 / 0.3);
+  --tahoe-float-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.1),
+    0 0 0 0.5px rgb(0 0 0 / 0.72),
+    0 12px 32px -6px rgb(0 0 0 / 0.5),
+    0 24px 64px -12px rgb(0 0 0 / 0.5);
+  --tahoe-panel-shadow:
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.08),
+    0 0 0 0.5px rgb(0 0 0 / 0.6),
+    0 8px 28px -8px rgb(0 0 0 / 0.5);
+
+  --color-red-rgb: 255, 69, 58;
+  --color-orange-rgb: 255, 159, 10;
+  --color-yellow-rgb: 255, 214, 10;
+  --color-green-rgb: 48, 209, 88;
+  --color-cyan-rgb: 100, 210, 255;
+  --color-blue-rgb: 10, 132, 255;
+  --color-purple-rgb: 191, 90, 242;
+  --color-pink-rgb: 255, 55, 95;
+  --color-red: #ff453a;
+  --color-orange: #ff9f0a;
+  --color-yellow: #ffd60a;
+  --color-green: #30d158;
+  --color-cyan: #64d2ff;
+  --color-blue: #0a84ff;
+  --color-purple: #bf5af2;
+  --color-pink: #ff375f;
+
+  --color-base-00: #1e1e1f;
+  --color-base-05: #212123;
+  --color-base-10: #242426;
+  --color-base-20: #2a2a2c;
+  --color-base-25: #303032;
+  --color-base-30: #38383a;
+  --color-base-35: #3f3f42;
+  --color-base-40: #48484a;
+  --color-base-50: #636366;
+  --color-base-60: #8e8e93;
+  --color-base-70: #a1a1a6;
+  --color-base-100: #f5f5f7;
+
+  --background-modifier-form-field: rgb(255 255 255 / 0.06);
+  --interactive-normal: #3a3a3d;
+  --interactive-hover: #434346;
+  --input-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.14),
+    0 0 0 0.5px rgb(0 0 0 / 0.5),
+    0 1px 2px rgb(0 0 0 / 0.25);
+  --input-shadow-hover: var(--input-shadow);
+
+  /* Xcode Default (Dark) */
+  --code-normal: #e4e4e6;
+  --code-comment: #7f8c98;
+  --code-function: #67b7a4;
+  --code-important: #ff8170;
+  --code-keyword: #ff7ab2;
+  --code-operator: #e4e4e6;
+  --code-property: #dabaff;
+  --code-punctuation: #a1a1a6;
+  --code-string: #ff8170;
+  --code-tag: #6bdfff;
+  --code-value: #d9c97c;
+
+  --text-highlight-bg: rgb(255 214 10 / 0.3);
+  --text-highlight-bg-active: rgb(255 159 10 / 0.4);
+}
+
+/* -------------------------------------------------------------------------
+   Map tokens onto Obsidian
+   ------------------------------------------------------------------------- */
+
+.theme-light,
+.theme-dark {
+  --background-primary: var(--tahoe-bg);
+  --background-primary-alt: var(--tahoe-bg-alt);
+  --background-secondary: var(--tahoe-panel);
+  --background-secondary-alt: var(--tahoe-bg-alt);
+  --background-modifier-hover: var(--tahoe-fill-4);
+  --background-modifier-active-hover: hsla(var(--interactive-accent-hsl), 0.14);
+  --background-modifier-border: var(--tahoe-separator);
+  --background-modifier-border-hover: var(--tahoe-separator-strong);
+  --background-modifier-border-focus: hsla(var(--interactive-accent-hsl), 0.5);
+  --background-modifier-form-field-highlighted: var(--background-modifier-form-field);
+  --background-modifier-success: var(--color-green);
+  --background-modifier-error: var(--color-red);
+  --background-modifier-error-hover: var(--color-red);
+  --background-modifier-cover: rgb(0 0 0 / 0.22);
+
+  --text-normal: var(--tahoe-label);
+  --text-muted: var(--tahoe-label-2);
+  --text-faint: var(--tahoe-label-3);
+  --text-on-accent: #ffffff;
+  --text-on-accent-inverted: #ffffff;
+  --text-accent: var(--color-accent);
+  --text-accent-hover: var(--color-accent-1);
+  --text-error: var(--color-red);
+  --text-success: var(--color-green);
+  --text-warning: var(--color-orange);
+  --text-selection: hsla(var(--interactive-accent-hsl), 0.24);
+  --caret-color: var(--interactive-accent);
+
+  --interactive-accent: var(--color-accent);
+  --interactive-accent-hover: var(--color-accent-1);
+
+  --divider-color: transparent;
+  --divider-color-hover: hsla(var(--interactive-accent-hsl), 0.5);
+
+  --icon-color: var(--text-muted);
+  --icon-color-hover: var(--text-normal);
+  --icon-color-active: var(--text-accent);
+  --icon-color-focused: var(--text-normal);
+  --icon-opacity: 1;
+  --icon-opacity-hover: 1;
+
+  --nav-item-color: var(--text-normal);
+  --nav-item-color-hover: var(--text-normal);
+  --nav-item-color-active: var(--text-normal);
+  --nav-item-color-selected: var(--text-normal);
+  --nav-item-background-hover: var(--tahoe-fill-4);
+  --nav-item-background-active: var(--tahoe-fill-2);
+  --nav-item-background-selected: hsla(var(--interactive-accent-hsl), 0.16);
+
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb-bg: var(--tahoe-fill-1);
+  --scrollbar-active-thumb-bg: var(--tahoe-label-3);
+
+  --tag-color: var(--text-accent);
+  --tag-color-hover: var(--text-accent);
+  --tag-background: hsla(var(--interactive-accent-hsl), 0.12);
+  --tag-background-hover: hsla(var(--interactive-accent-hsl), 0.2);
+
+  --code-background: var(--tahoe-bg-alt);
+  --blockquote-border-color: var(--tahoe-label-4);
+  --blockquote-color: var(--text-muted);
+  --hr-color: var(--tahoe-separator-strong);
+  --table-border-color: var(--tahoe-separator);
+  --table-header-border-color: var(--tahoe-separator-strong);
+  --table-header-background: transparent;
+  --table-header-background-hover: transparent;
+  --table-header-color: var(--text-muted);
+  --table-row-background-hover: var(--tahoe-fill-4);
+  --table-selection: hsla(var(--interactive-accent-hsl), 0.14);
+  --embed-background: var(--tahoe-bg-alt);
+  --indentation-guide-color: var(--tahoe-separator);
+  --indentation-guide-color-active: var(--tahoe-separator-strong);
+
+  --modal-background: var(--tahoe-sheet);
+  --menu-background: var(--tahoe-glass-thick);
+  --menu-shadow: var(--tahoe-float-shadow);
+  --menu-backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  --prompt-background: var(--tahoe-glass-thick);
+  --prompt-backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  --shadow-s: var(--tahoe-float-shadow);
+  --shadow-l: var(--tahoe-float-shadow);
+
+  --setting-items-background: var(--tahoe-card);
+  --setting-items-border-color: transparent;
+
+  --status-bar-background: transparent;
+  --status-bar-text-color: var(--text-muted);
+
+  --graph-node: var(--text-muted);
+  --graph-node-unresolved: var(--text-faint);
+  --graph-node-focused: var(--text-accent);
+  --graph-node-tag: var(--color-green);
+  --graph-node-attachment: var(--color-yellow);
+  --graph-line: var(--tahoe-separator-strong);
+}
+
+/* =========================================================================
+   2. Window & sidebars — macOS Golden Gate: edge-to-edge, colored icons
+   ========================================================================= */
+
+body:not(.is-mobile) .app-container,
+body:not(.is-mobile) .horizontal-main-container,
+body:not(.is-mobile) .workspace {
+  background-color: var(--background-primary);
+}
+
+body:not(.is-mobile) .workspace-split.mod-root {
+  background-color: var(--background-primary);
+}
+
+/* ---- Ribbon: part of the sidebar column ---- */
+
+body:not(.is-mobile) .workspace-ribbon.mod-left {
+  --ribbon-width: 44px;
+  position: relative;
+  margin: 0;
+  padding: var(--header-height) 4px 8px;
+  background-color: var(--tahoe-panel);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body:not(.is-mobile) .workspace-ribbon.mod-left::before {
+  background: transparent;
+  border: none;
+  height: var(--header-height);
+}
+
+/* Sidebar closed: the ribbon's icons sit in the window margin */
+body:not(.is-mobile) .workspace-ribbon.mod-left.is-collapsed {
+  background-color: var(--background-primary);
+}
+
+body:not(.is-mobile) .workspace-ribbon .side-dock-actions,
+body:not(.is-mobile) .workspace-ribbon .side-dock-settings {
+  gap: 2px;
+}
+
+body:not(.is-mobile) .workspace-ribbon .side-dock-ribbon-action {
+  width: 36px;
+  height: 32px;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-muted);
+}
+
+body:not(.is-mobile) .workspace-ribbon .side-dock-ribbon-action:hover {
+  background-color: var(--tahoe-fill-3);
+  color: var(--text-normal);
+}
+
+/* ---- Sidebars ---- */
+
+body:not(.is-mobile) .workspace-split.mod-sidedock {
+  background-color: var(--tahoe-panel);
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body:not(.is-mobile) .workspace-split.mod-left-split {
+  box-shadow: inset -0.5px 0 0 var(--tahoe-sidebar-edge);
+}
+
+body:not(.is-mobile) .workspace-split.mod-right-split {
+  box-shadow: inset 0.5px 0 0 var(--tahoe-sidebar-edge);
+}
+
+body:not(.is-mobile).show-ribbon .workspace-ribbon.mod-left.is-collapsed {
+  box-shadow: none;
+}
+
+body:not(.is-mobile) .mod-sidedock :is(.workspace-tabs, .workspace-tab-container, .workspace-leaf, .workspace-leaf-content, .view-content, .workspace-tab-header-container),
+body:not(.is-mobile) .mod-sidedock .workspace-sidedock-vault-profile,
+body:not(.is-mobile) .mod-sidedock .workspace-sidedock-empty-state {
+  background-color: transparent;
+  border: none;
+}
+
+body:not(.is-mobile) .mod-sidedock > .workspace-leaf-resize-handle {
+  border: none;
+  background: transparent;
+}
+
+/* Sidebar header row, centred on the traffic lights */
+body:not(.is-mobile) .mod-sidedock .workspace-tabs.mod-top > .workspace-tab-header-container {
+  height: var(--header-height);
+  padding-top: 0;
+  padding-bottom: 0;
+  align-items: center;
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-container {
+  border-bottom: none;
+  padding-inline-end: 8px;
+}
+
+/* Segmented control for sidebar views (Files · Search · Bookmarks …) */
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-container-inner {
+  -webkit-app-region: no-drag;
+  flex: 0 1 auto;
+  height: 30px;
+  padding: 2px;
+  margin: 0;
+  gap: 0;
+  border-radius: var(--tahoe-capsule);
+  background-color: var(--tahoe-fill-4);
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header {
+  height: 26px;
+  min-width: 32px;
+  padding: 0;
+  margin: 0;
+  border-radius: var(--tahoe-capsule);
+  background: transparent;
+  box-shadow: none;
+  transition: background-color var(--anim-duration-fast), box-shadow var(--anim-duration-fast);
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header::before,
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header::after {
+  display: none;
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-inner {
+  padding: 0 8px;
+  justify-content: center;
+  border-radius: inherit;
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header:not(.is-active):hover {
+  background-color: var(--tahoe-fill-3);
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header.is-active {
+  background-color: var(--tahoe-glass-selected);
+  box-shadow: var(--tahoe-glass-shadow-raised);
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header.is-active .workspace-tab-header-inner-icon {
+  color: var(--text-accent);
+}
+
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-inner-icon {
+  color: var(--text-muted);
+}
+
+body:not(.is-mobile) .mod-sidedock .sidebar-toggle-button {
+  order: 99;
+  margin-inline-start: auto;
+  height: auto;
+  padding: 0;
+}
+
+body:not(.is-mobile) .mod-sidedock .sidebar-toggle-button .clickable-icon,
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-new-tab .clickable-icon,
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-tab-list .clickable-icon {
+  border-radius: var(--tahoe-capsule);
+}
+
+/* Sidebar content */
+body:not(.is-mobile) .mod-sidedock .workspace-leaf-content > .view-content {
+  padding: 0 10px 8px;
+}
+
+body:not(.is-mobile) .mod-sidedock .nav-header {
+  padding: 0 0 6px;
+}
+
+body:not(.is-mobile) .nav-buttons-container {
+  justify-content: center;
+  gap: 2px;
+}
+
+body:not(.is-mobile) .nav-action-button {
+  border-radius: var(--tahoe-capsule);
+  padding: 6px 8px;
+}
+
+body:not(.is-mobile) .nav-action-button.is-active {
+  background-color: var(--tahoe-fill-3);
+  color: var(--text-normal);
+}
+
+/* Vault switcher */
+body:not(.is-mobile) .workspace-split.mod-left-split .workspace-sidedock-vault-profile {
+  padding: 6px 10px 10px;
+  border-top: none;
+  background-color: transparent;
+}
+
+body:not(.is-mobile) .workspace-drawer-vault-switcher {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+body:not(.is-mobile) .workspace-drawer-vault-switcher:hover {
+  background-color: var(--tahoe-fill-3);
+}
+
+/* ---- Sidebar rows ---- */
+
+.tree-item-self {
+  border-radius: var(--nav-item-radius);
+  min-height: 28px;
+  align-items: center;
+  transition: background-color var(--anim-duration-superfast);
+}
+
+.tree-item-self .tree-item-icon.collapse-icon {
+  margin-inline-start: -20px;
+  padding-inline-end: 4px;
+}
+
+.tree-item-self .tree-item-icon.collapse-icon svg.svg-icon {
+  --icon-size: 12px;
+  --icon-stroke: 2.5px;
+}
+
+.nav-folder-title {
+  font-weight: 500;
+}
+
+/* Selection: grey, bold — and accent-filled while the sidebar is the active pane */
+.tree-item-self.is-active,
+.tree-item-self.is-being-renamed {
+  background-color: var(--tahoe-fill-2);
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+body.is-focused:not(.is-mobile) .mod-sidedock .workspace-leaf.mod-active .tree-item-self.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+body.is-focused:not(.is-mobile) .mod-sidedock .workspace-leaf.mod-active .tree-item-self.is-active :is(.tree-item-icon, .tree-item-flair, .nav-file-tag) {
+  color: var(--text-on-accent);
+}
+
+.tree-item-self.is-selected {
+  background-color: var(--nav-item-background-selected);
+}
+
+/* Sidebar icons have color again: folders in accent, files by kind */
+body:not(.tahoe-no-tree-icons) .nav-files-container .tree-item-self :is(.nav-folder-title-content, .nav-file-title-content)::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 7px;
+  vertical-align: -3px;
+  background-color: var(--tahoe-tree-icon, var(--tahoe-label-3));
+  -webkit-mask: var(--tahoe-tree-glyph) center / contain no-repeat;
+  mask: var(--tahoe-tree-glyph) center / contain no-repeat;
+}
+
+.nav-files-container .nav-folder-title {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+  --tahoe-tree-icon: var(--interactive-accent);
+}
+
+.nav-files-container .nav-folder.is-collapsed > .nav-folder-title {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z'/%3E%3C/svg%3E");
+}
+
+.nav-files-container .nav-file-title {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3C/svg%3E");
+  --tahoe-tree-icon: var(--tahoe-label-3);
+}
+
+.nav-files-container .nav-file-title[data-path$=".md" i] {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3Cpath d='M16 13H8'/%3E%3Cpath d='M16 17H8'/%3E%3Cpath d='M10 9H8'/%3E%3C/svg%3E");
+}
+
+.nav-files-container .nav-file-title:is([data-path$=".png" i], [data-path$=".jpg" i], [data-path$=".jpeg" i], [data-path$=".gif" i], [data-path$=".webp" i], [data-path$=".svg" i], [data-path$=".heic" i]) {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' ry='2'/%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Cpath d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/%3E%3C/svg%3E");
+  --tahoe-tree-icon: var(--color-green);
+}
+
+.nav-files-container .nav-file-title[data-path$=".pdf" i] {
+  --tahoe-tree-icon: var(--color-red);
+}
+
+.nav-files-container .nav-file-title[data-path$=".canvas" i] {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='7' height='9' x='3' y='3' rx='1'/%3E%3Crect width='7' height='5' x='14' y='3' rx='1'/%3E%3Crect width='7' height='9' x='14' y='12' rx='1'/%3E%3Crect width='7' height='5' x='3' y='16' rx='1'/%3E%3C/svg%3E");
+  --tahoe-tree-icon: var(--color-orange);
+}
+
+.nav-files-container .nav-file-title[data-path$=".base" i] {
+  --tahoe-tree-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v18'/%3E%3Crect width='18' height='18' x='3' y='3' rx='2'/%3E%3Cpath d='M3 9h18'/%3E%3Cpath d='M3 15h18'/%3E%3C/svg%3E");
+  --tahoe-tree-icon: var(--color-cyan);
+}
+
+body.is-focused:not(.is-mobile) .mod-sidedock .workspace-leaf.mod-active .tree-item-self.is-active {
+  --tahoe-tree-icon: var(--text-on-accent);
+}
+
+/* The file-kind badge is redundant next to a kind icon */
+body:not(.tahoe-no-tree-icons) .nav-files-container .nav-file-title:is([data-path$=".png" i], [data-path$=".jpg" i], [data-path$=".jpeg" i], [data-path$=".canvas" i], [data-path$=".base" i]) .nav-file-tag {
+  display: none;
+}
+
+.nav-file-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background-color: var(--tahoe-fill-3);
+  color: var(--text-muted);
+}
+
+.tree-item-flair {
+  color: var(--text-faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Inactive window: controls and icons step back ---- */
+
+body:not(.is-mobile):not(.is-focused) :is(.mod-root .workspace-tab-header-container, .mod-root .view-header) .clickable-icon,
+body:not(.is-mobile):not(.is-focused) .workspace-ribbon .side-dock-ribbon-action,
+body:not(.is-mobile):not(.is-focused) .mod-root .view-header-title {
+  color: var(--text-faint);
+}
+
+body:not(.is-mobile):not(.is-focused) .nav-files-container .tree-item-self {
+  --tahoe-tree-icon: var(--tahoe-label-3);
+}
+
+body:not(.is-mobile):not(.is-focused) .mod-sidedock .workspace-tab-header.is-active .workspace-tab-header-inner-icon {
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+   3. Toolbar — content scrolls beneath floating glass controls
+   ========================================================================= */
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) > .workspace-tab-header-container {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  height: var(--header-height);
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding-inline-end: 10px;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) > .workspace-tab-container {
+  height: 100%;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content > .view-header {
+  position: absolute;
+  inset: var(--header-height) 0 auto 0;
+  z-index: 2;
+  height: var(--tahoe-vh);
+  align-items: center;
+  padding: 0 10px;
+  background: transparent;
+  border: none;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content > .view-content {
+  height: 100%;
+  padding-top: var(--tahoe-toolbar);
+}
+
+/* Markdown, canvas and graph run full-bleed under the toolbar */
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content:is([data-type="markdown"], [data-type="canvas"], [data-type="graph"], [data-type="localgraph"]) > .view-content {
+  padding-top: 0;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view.mod-cm6 > .cm-editor > .cm-scroller,
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view > .markdown-preview-view {
+  padding-top: calc(var(--tahoe-toolbar) + 12px);
+  scroll-padding-top: calc(var(--tahoe-toolbar) + 12px);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] .document-search-container {
+  margin-top: calc(var(--tahoe-toolbar) + 4px);
+  position: relative;
+  z-index: 2;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content :is(.canvas-controls, .graph-controls) {
+  top: calc(var(--tahoe-toolbar) + 8px);
+}
+
+/* Uniform toolbar (Golden Gate): one glass band behind the controls, with a
+   darkened edge. It diffuses the note scrolling underneath and fades in as
+   soon as content reaches it. */
+body:not(.is-mobile):not(.tahoe-no-scroll-edge) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 1;
+  height: var(--tahoe-toolbar);
+  pointer-events: none;
+  background: var(--tahoe-toolbar-material);
+  -webkit-backdrop-filter: blur(var(--tahoe-toolbar-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--tahoe-toolbar-blur)) saturate(1.8);
+  box-shadow:
+    0 0.5px 0 var(--tahoe-toolbar-edge),
+    0 6px 14px -10px rgb(0 0 0 / 0.18);
+}
+
+@supports (animation-timeline: scroll()) {
+  body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] {
+    timeline-scope: --tahoe-scroll;
+  }
+
+  body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view.mod-cm6 > .cm-editor > .cm-scroller,
+  body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view > .markdown-preview-view {
+    scroll-timeline: --tahoe-scroll block;
+  }
+
+  body:not(.is-mobile):not(.tahoe-no-scroll-edge) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content[data-type="markdown"]::before {
+    animation: tahoe-toolbar-reveal linear both;
+    animation-timeline: --tahoe-scroll;
+    animation-range: 0 36px;
+  }
+}
+
+@keyframes tahoe-toolbar-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Tabs: a single glass platter, active tab is a raised pill ---- */
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-spacer {
+  display: none;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header-container-inner {
+  -webkit-app-region: no-drag;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0 auto;
+  height: var(--tahoe-control-h);
+  padding: var(--tahoe-control-pad);
+  gap: 2px;
+  border-radius: var(--tahoe-capsule);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header {
+  height: calc(var(--tahoe-control-h) - var(--tahoe-control-pad) * 2);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  background: transparent;
+  box-shadow: none;
+  transition:
+    background-color var(--anim-duration-fast) var(--tahoe-ease),
+    box-shadow var(--anim-duration-fast) var(--tahoe-ease),
+    max-width var(--anim-duration-moderate) var(--tahoe-ease);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header::before,
+body:not(.is-mobile) .mod-root .workspace-tab-header::after,
+body:not(.is-mobile) .mod-root .workspace-tab-header-inner::after {
+  display: none;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header-inner {
+  padding: 0 6px 0 14px;
+  gap: 6px;
+  border-radius: inherit;
+  height: 100%;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-inner-title {
+  font-size: var(--tab-font-size);
+  font-weight: var(--tab-font-weight);
+  line-height: normal;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header:not(.is-active):hover {
+  background-color: var(--tahoe-fill-4);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header.is-active {
+  background-color: var(--tahoe-glass-selected);
+  box-shadow: var(--tahoe-glass-shadow-raised);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header.is-active .workspace-tab-header-inner-title {
+  color: var(--text-normal);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header:not(.is-active) .workspace-tab-header-inner-title {
+  color: var(--text-muted);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header:only-child .workspace-tab-header-inner {
+  padding-inline-start: 18px;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-inner-close-button {
+  --icon-size: 12px;
+  --icon-stroke: 2.25px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  opacity: 0;
+  transition: opacity var(--anim-duration-fast);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header:hover .workspace-tab-header-inner-close-button,
+body:not(.is-mobile) .mod-root .workspace-tab-header.is-active .workspace-tab-header-inner-close-button {
+  opacity: 1;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-inner-close-button:hover {
+  background-color: var(--tahoe-fill-3);
+}
+
+body.tahoe-flat-tabs:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header-container-inner:has(> .workspace-tab-header:only-child) {
+  visibility: hidden;
+}
+
+/* ---- Toolbar buttons ---- */
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) {
+  height: auto;
+  padding: 0;
+  margin: 0;
+  -webkit-app-region: no-drag;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) .clickable-icon {
+  width: var(--tahoe-control-h);
+  min-width: var(--tahoe-control-h);
+  height: var(--tahoe-control-h);
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-normal);
+}
+
+/* "+" and "⌄" read as one capsule */
+body:not(.is-mobile) .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab .clickable-icon.clickable-icon {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  width: 40px;
+  padding-inline-start: 4px;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-container .workspace-tab-header-tab-list .clickable-icon.clickable-icon {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  width: 34px;
+  min-width: 34px;
+  padding-inline-end: 6px;
+  --icon-size: 14px;
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab {
+  margin-inline-end: -8px;
+}
+
+/* macOS pins the right toggle to the titlebar; keep it in the toolbar row */
+body:not(.is-mobile) .mod-root .workspace-tab-header-container .sidebar-toggle-button.mod-right {
+  position: relative;
+  inset: auto;
+  width: auto;
+}
+
+/* View header: back/forward capsule · title · actions capsule */
+body:not(.is-mobile) .mod-root .view-header-left {
+  flex: 0 0 auto;
+}
+
+body:not(.is-mobile) .mod-root .view-header-nav-buttons,
+body:not(.is-mobile) .mod-root .view-actions {
+  height: 32px;
+  padding: 0 2px;
+  gap: 0;
+  align-items: center;
+  border-radius: var(--tahoe-capsule);
+}
+
+body:not(.is-mobile) .mod-root .view-actions:not(:has(> .clickable-icon:not(.mod-bookmark))) {
+  display: none;
+}
+
+body:not(.is-mobile) .mod-root :is(.view-header-nav-buttons, .view-actions) .clickable-icon {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-normal);
+}
+
+body:not(.is-mobile) .mod-root :is(.view-header-nav-buttons, .view-actions) .clickable-icon:hover {
+  background-color: var(--tahoe-fill-3);
+}
+
+body:not(.is-mobile) .mod-root :is(.view-header-nav-buttons) .clickable-icon[aria-disabled="true"] {
+  color: var(--text-faint);
+}
+
+body:not(.is-mobile) .mod-root .view-header-title-container {
+  justify-content: center;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+body:not(.is-mobile) .view-header-title,
+body:not(.is-mobile) .view-header-breadcrumb {
+  font-size: 13px;
+}
+
+body:not(.is-mobile) .view-header-title {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+body:not(.is-mobile) .view-header-breadcrumb,
+body:not(.is-mobile) .view-header-breadcrumb-separator {
+  color: var(--text-faint);
+}
+
+/* =========================================================================
+   4. Liquid Glass surfaces
+   -------------------------------------------------------------------------
+   --tahoe-lens is filled in by the Tahoe Glass plugin with an SVG
+   refraction filter; without the plugin it is empty and the chain is just
+   blur + saturation. --tahoe-mx/--tahoe-my drive the pointer highlight.
+   ========================================================================= */
+
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header-container-inner,
+body:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) .clickable-icon,
+body:not(.is-mobile) .mod-root .view-header-nav-buttons,
+body:not(.is-mobile) .mod-root .view-actions,
+body:not(.is-mobile) .status-bar,
+.canvas-controls .canvas-control-group,
+.canvas-card-menu,
+.document-search-container {
+  --tahoe-sheen: radial-gradient(
+    120px circle at var(--tahoe-mx, 50%) var(--tahoe-my, -100%),
+    rgb(var(--tahoe-glow-color) / calc(var(--tahoe-glow-alpha) * var(--tahoe-glow, 0))),
+    transparent 70%
+  );
+  background: var(--tahoe-sheen), linear-gradient(to bottom, rgb(255 255 255 / 0.08), transparent 60%), var(--tahoe-control-tint);
+  -webkit-backdrop-filter: blur(var(--tahoe-control-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate)) brightness(1.04);
+  backdrop-filter: blur(var(--tahoe-control-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate)) brightness(1.04);
+  box-shadow: var(--tahoe-glass-shadow);
+  border: none;
+  transition:
+    background-color var(--anim-duration-fast),
+    transform var(--anim-duration-moderate) var(--tahoe-spring),
+    box-shadow var(--anim-duration-fast),
+    --tahoe-glow 0.4s var(--tahoe-ease);
+}
+
+@property --tahoe-glow {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* With the Tahoe Glass plugin the glass really refracts, so it can be clear
+   like Liquid Glass: content behind stays sharp and bends at the rim, with
+   only a hint of blur and tint. Frost comes in toward the Tinted end of the
+   slider (the level is squared, so most of the range stays clear). The blur
+   runs before the lens, so the bending itself is never blurred away. */
+body.tahoe-refraction {
+  --tahoe-l2: calc(var(--tahoe-glass-level) * var(--tahoe-glass-level));
+  --tahoe-control-blur: calc(0.4px + 7px * var(--tahoe-l2));
+  --tahoe-menu-blur: calc(0.5px + 19px * var(--tahoe-l2));
+  --tahoe-toolbar-blur: calc(5px + 11px * var(--tahoe-l2));
+  --tahoe-saturate: 1.4; /* clear glass shows the content itself, so less boost */
+}
+
+body.tahoe-refraction.theme-light,
+body.tahoe-refraction .theme-light {
+  --tahoe-control-tint: rgb(255 255 255 / calc(0.05 + 0.6 * var(--tahoe-l2)));
+  --tahoe-glass-thick: rgb(250 250 252 / calc(0.2 + 0.7 * var(--tahoe-l2)));
+  --tahoe-toolbar-material: color-mix(in srgb, var(--background-primary) calc(55% + 35% * var(--tahoe-l2)), transparent);
+}
+
+body.tahoe-refraction.theme-dark,
+body.tahoe-refraction .theme-dark {
+  --tahoe-control-tint: rgb(44 44 48 / calc(0.08 + 0.64 * var(--tahoe-l2)));
+  --tahoe-glass-thick: rgb(36 36 40 / calc(0.2 + 0.7 * var(--tahoe-l2)));
+  --tahoe-toolbar-material: color-mix(in srgb, var(--background-primary) calc(58% + 32% * var(--tahoe-l2)), transparent);
+}
+
+/* Clear glass shows everything behind it, so text on it gets a soft shadow
+   for legibility, the job vibrancy does on macOS. It fades out toward
+   Tinted, where the frost does it instead. */
+body.tahoe-refraction {
+  --tahoe-legible: 0 0 1px rgb(255 255 255 / calc(0.5 * (1 - var(--tahoe-l2)))), 0 0 8px rgb(255 255 255 / calc(0.7 * (1 - var(--tahoe-l2))));
+}
+
+body.tahoe-refraction.theme-dark,
+body.tahoe-refraction .theme-dark {
+  --tahoe-legible: 0 1px 2px rgb(0 0 0 / calc(0.5 * (1 - var(--tahoe-l2)))), 0 0 10px rgb(0 0 0 / calc(0.45 * (1 - var(--tahoe-l2))));
+}
+
+body.tahoe-refraction :is(.menu .menu-item, .suggestion-container .suggestion-item, .prompt .suggestion-item, .prompt-instructions, .notice),
+body.tahoe-refraction:not(.is-mobile) .mod-root .view-header-title-container {
+  text-shadow: var(--tahoe-legible);
+}
+
+/* The toolbar band becomes a soft scroll edge: it fades out toward the
+   bottom, so the glass controls float over the note itself. */
+body.tahoe-refraction:not(.is-mobile):not(.tahoe-no-scroll-edge) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-leaf-content::before {
+  -webkit-mask-image: linear-gradient(to bottom, #000 35%, rgb(0 0 0 / 0.8) 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 35%, rgb(0 0 0 / 0.8) 70%, transparent);
+}
+
+.menu,
+.suggestion-container,
+.prompt,
+.notice {
+  transition: --tahoe-glow 0.4s var(--tahoe-ease);
+}
+
+/* Press: glass swells slightly and brightens */
+body:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) .clickable-icon:hover {
+  background: var(--tahoe-sheen), linear-gradient(to bottom, rgb(255 255 255 / 0.12), transparent 60%), var(--tahoe-glass-hover);
+}
+
+body:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) .clickable-icon:active,
+body:not(.is-mobile) .mod-root :is(.view-header-nav-buttons, .view-actions):active {
+  transform: scale(1.06);
+}
+
+/* Floating chrome: menus, suggestions, palette, notices, tooltips, popovers */
+.menu,
+.suggestion-container,
+.prompt,
+.notice,
+.tooltip,
+.popover.hover-popover,
+.mod-sidedock .search-input-container input,
+.modal.mod-settings .vertical-tab-header {
+  --tahoe-sheen: radial-gradient(
+    160px circle at var(--tahoe-mx, 50%) var(--tahoe-my, -100%),
+    rgb(var(--tahoe-glow-color) / calc(var(--tahoe-glow-alpha) * 0.6 * var(--tahoe-glow, 0))),
+    transparent 70%
+  );
+}
+
+/* Specular rim — bright where light hits the top-left and bottom-right edges */
+.menu::after,
+.suggestion-container::after,
+.prompt::after,
+.notice::after,
+.popover.hover-popover::after,
+.modal:not(.mod-sidebar-layout)::after,
+body:not(.is-mobile) .status-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    150deg,
+    var(--tahoe-rim-hi) 0%,
+    rgb(255 255 255 / 0) 28%,
+    rgb(255 255 255 / 0) 64%,
+    var(--tahoe-rim-lo) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0.9;
+}
+
+.theme-dark :is(.menu, .suggestion-container, .prompt, .notice, .popover.hover-popover, .modal, .status-bar)::after {
+  opacity: 0.7;
+}
+
+/* ---- Menus ---- */
+
+.menu {
+  padding: var(--menu-padding);
+  border: none;
+  border-radius: var(--menu-radius);
+  background: var(--tahoe-sheen), var(--menu-background);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  box-shadow: var(--menu-shadow);
+  animation: tahoe-pop var(--anim-duration-fast) var(--tahoe-ease);
+  transform-origin: top left;
+}
+
+.menu-item {
+  min-height: 26px;
+  padding: 3px 10px;
+  border-radius: var(--tahoe-radius-menu-item);
+  font-size: 13px;
+  gap: 8px;
+}
+
+.menu-item-icon {
+  color: var(--text-muted);
+}
+
+.menu-item:not(.is-disabled):not(.is-label).selected,
+.menu-item:not(.is-disabled):not(.is-label):hover {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.menu-item:not(.is-disabled):not(.is-label).selected .menu-item-icon,
+.menu-item:not(.is-disabled):not(.is-label):hover .menu-item-icon,
+.menu-item:not(.is-disabled):not(.is-label).selected .menu-item-hotkey,
+.menu-item:not(.is-disabled):not(.is-label):hover .menu-item-hotkey {
+  color: var(--text-on-accent);
+}
+
+.menu-item.is-warning:not(.is-disabled):hover,
+.menu-item.is-warning:not(.is-disabled).selected {
+  background-color: var(--color-red);
+  color: #ffffff;
+}
+
+.menu-item.is-warning:not(.is-disabled):hover .menu-item-icon,
+.menu-item.is-warning:not(.is-disabled).selected .menu-item-icon {
+  color: #ffffff;
+}
+
+.menu-separator {
+  margin: 5px 10px;
+  border-bottom: none;
+  height: 1px;
+  background-color: var(--tahoe-separator);
+}
+
+.menu-item.is-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+/* ---- Autocomplete & suggestion popovers ---- */
+
+.suggestion-container {
+  padding: 5px;
+  border: none;
+  border-radius: var(--tahoe-radius-menu);
+  background: var(--tahoe-sheen), var(--tahoe-glass-thick);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+}
+
+.suggestion-item {
+  border-radius: var(--tahoe-radius-menu-item);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.suggestion-item.is-selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.suggestion-item.is-selected :is(.suggestion-note, .suggestion-flair, .suggestion-hotkey, .suggestion-aux, .suggestion-icon, .suggestion-title, .suggestion-highlight) {
+  color: var(--text-on-accent);
+}
+
+.suggestion-item.is-selected .suggestion-highlight {
+  background-color: rgb(255 255 255 / 0.2);
+}
+
+.suggestion-highlight {
+  color: var(--text-accent);
+  font-weight: 650;
+}
+
+/* ---- Code editor popups: suggestions, docs, hover cards, problems ----
+   Text-heavy, so a nearly solid card: a hint of blur, no refraction, and
+   nothing behind shows through the words. The list and its docs are two
+   cards side by side. CodeMirror's own look is scoped one class deeper,
+   hence the .cm-editor > prefix. */
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > :is(ul, .cm-completionInfo),
+body .cm-editor > .cm-tooltip:is(.cm-tooltip-hover, .cm-tooltip-lint),
+body .cm-editor > .cm-tooltip:has(> .tahoe-code-signature) {
+  border: none;
+  border-radius: var(--tahoe-radius-menu);
+  color: var(--text-normal);
+  background: color-mix(in srgb, var(--background-primary) 95%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow: 0 0 0 0.5px var(--background-modifier-border), var(--tahoe-float-shadow);
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > ul {
+  padding: 5px;
+  max-height: 16em;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  padding: 2px 8px;
+  border-radius: var(--tahoe-radius-menu-item);
+  line-height: 1.55;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] :is(.cm-completionDetail, .cm-completionMatchedText) {
+  color: var(--text-on-accent);
+  opacity: 0.85;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > .cm-completionInfo {
+  padding: 7px 11px;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > .cm-completionInfo-right {
+  margin-left: 6px;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > .cm-completionInfo-left {
+  margin-left: -6px;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-lint,
+body .cm-editor > .cm-tooltip.cm-tooltip-hover .cm-tooltip-lint {
+  padding: 4px;
+}
+
+body .cm-editor > .cm-tooltip.cm-tooltip-hover > .cm-tooltip-section + .cm-tooltip-section {
+  border-top: 1px solid var(--tahoe-separator);
+}
+
+/* Each problem starts with Xcode's issue icon: a red circle for an error,
+   a yellow triangle for a warning, a blue circle for a note. */
+body .cm-editor > .cm-tooltip .cm-diagnostic {
+  --tahoe-issue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23007AFF'/%3E%3Ccircle cx='8' cy='4.6' r='1.05' fill='%23fff'/%3E%3Crect x='7.1' y='6.6' width='1.8' height='5.6' rx='.9' fill='%23fff'/%3E%3C/svg%3E");
+  border-left: none;
+  padding: 4px 10px;
+}
+
+body .cm-editor > .cm-tooltip .cm-diagnostic::before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 14px;
+  height: 14px;
+  margin: -2px 7px 0 0;
+  background: var(--tahoe-issue) center / contain no-repeat;
+}
+
+body .cm-editor > .cm-tooltip .cm-diagnostic-error {
+  --tahoe-issue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23FF3B30'/%3E%3Crect x='7.1' y='3.7' width='1.8' height='5.6' rx='.9' fill='%23fff'/%3E%3Ccircle cx='8' cy='11.6' r='1.05' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+body .cm-editor > .cm-tooltip .cm-diagnostic-warning {
+  --tahoe-issue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2c.55 0 1.05.3 1.33.77l6.08 10.6c.58 1-.14 2.23-1.33 2.23H1.92C.73 14.8 0 13.57.59 12.57L6.67 1.97C6.95 1.5 7.45 1.2 8 1.2z' fill='%23FFCC00'/%3E%3Crect x='7.15' y='4.9' width='1.7' height='5.2' rx='.85' fill='%23000' fill-opacity='.78'/%3E%3Ccircle cx='8' cy='12.05' r='1' fill='%23000' fill-opacity='.78'/%3E%3C/svg%3E");
+}
+
+/* "Python", "clangd": under the message, aligned with its text. */
+body .cm-editor > .cm-tooltip .cm-diagnostic .cm-diagnosticSource {
+  margin-inline-start: 21px;
+  font-size: 11px;
+  color: var(--text-faint);
+  opacity: 1;
+}
+
+.theme-dark .cm-editor > .cm-tooltip.cm-tooltip-autocomplete > :is(ul, .cm-completionInfo),
+.theme-dark .cm-editor > .cm-tooltip:is(.cm-tooltip-hover, .cm-tooltip-lint) {
+  background: color-mix(in srgb, var(--background-secondary) 95%, transparent);
+  box-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.12), var(--tahoe-float-shadow);
+}
+
+/* ---- Command palette & quick switcher: Spotlight ---- */
+
+.prompt {
+  border: none;
+  border-radius: 16px;
+  background: var(--tahoe-sheen), var(--prompt-background);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+  padding: 0;
+  overflow: hidden;
+  animation: tahoe-pop var(--anim-duration-moderate) var(--tahoe-spring);
+  transform-origin: top center;
+}
+
+.prompt-input-container {
+  padding: 4px 8px 0;
+  border-bottom: 1px solid var(--tahoe-separator);
+}
+
+.prompt-input-container::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 22px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  translate: 0 -50%;
+  margin-top: 2px;
+  background-color: var(--text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m15.5 15.5 5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.prompt-input-container {
+  position: relative;
+}
+
+.modal-container:has(> .prompt) > .modal-bg {
+  background-color: rgb(0 0 0 / 0.06);
+}
+
+.theme-dark .modal-container:has(> .prompt) > .modal-bg {
+  background-color: rgb(0 0 0 / 0.2);
+}
+
+.prompt .prompt-input-container input.prompt-input,
+.prompt .prompt-input-container input.prompt-input:is(:focus, :focus-visible, :hover) {
+  height: 56px;
+  padding-inline-start: 44px;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.prompt input.prompt-input::placeholder {
+  color: var(--text-faint);
+}
+
+.prompt-results {
+  padding: 6px;
+}
+
+.prompt .suggestion-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.prompt-instructions {
+  padding: 8px 14px;
+  border-top: 1px solid var(--tahoe-separator);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.prompt-instruction-command {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.suggestion-hotkey kbd,
+.setting-hotkey,
+kbd {
+  font-family: var(--font-interface);
+  font-size: 11.5px;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 1px 5px;
+  background-color: var(--tahoe-fill-4);
+  box-shadow: none;
+}
+
+/* ---- Modals & sheets ---- */
+
+.modal-bg {
+  background-color: rgb(0 0 0 / 0.18);
+}
+
+.theme-dark .modal-bg {
+  background-color: rgb(0 0 0 / 0.42);
+}
+
+.modal {
+  border: none;
+  border-radius: var(--modal-radius);
+  background: var(--tahoe-glass-sheet);
+  -webkit-backdrop-filter: blur(var(--tahoe-sheet-blur)) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-sheet-blur)) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+  animation: tahoe-sheet var(--anim-duration-moderate) var(--tahoe-spring);
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Close: a round grey button. Obsidian 1.13 calls it .modal-header-button. */
+.modal-close-button,
+body:not(.is-mobile) .modal > .modal-header-button {
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  background-color: var(--tahoe-fill-3);
+  color: var(--text-muted);
+  --icon-size: 14px;
+  --icon-stroke: 2.5px;
+}
+
+.modal-close-button:hover,
+body:not(.is-mobile) .modal > .modal-header-button:hover {
+  background-color: var(--tahoe-fill-1);
+  color: var(--text-normal);
+}
+
+.modal-button-container {
+  gap: 10px;
+}
+
+/* ---- Settings: macOS System Settings ---------------------------------
+   Flush sidebar with tinted icon tiles and an accent selection, a white
+   content pane with soft grey grouped cards, a glass back button, and a
+   centred header card (added by the Tahoe Glass plugin).
+   ---------------------------------------------------------------------- */
+
+.theme-light {
+  --tahoe-settings-sidebar: var(--tahoe-panel);
+  --tahoe-settings-content: #ffffff;
+  --tahoe-settings-card: #f4f4f5;
+  --tahoe-settings-search: rgb(255 255 255 / 0.6);
+  --tahoe-tile-edge: rgb(0 0 0 / 0.08);
+}
+
+.theme-dark {
+  --tahoe-settings-sidebar: var(--tahoe-panel);
+  --tahoe-settings-content: #1e1e1f;
+  --tahoe-settings-card: #2b2b2d;
+  --tahoe-settings-search: rgb(255 255 255 / 0.07);
+  --tahoe-tile-edge: rgb(255 255 255 / 0.12);
+}
+
+body:not(.is-mobile) .modal.mod-settings {
+  --modal-background: var(--tahoe-settings-content);
+  --setting-items-background: var(--tahoe-settings-card);
+  --setting-items-radius: 16px;
+  --setting-items-padding-x: 16px;
+  --setting-items-padding-y: 11px;
+  --setting-items-border-width: 0px;
+  --setting-items-border-color: transparent;
+  --setting-group-max-width: 760px;
+  --tahoe-settings-sidebar-w: 240px;
+  background: var(--tahoe-settings-content);
+  overflow: hidden;
+}
+
+/* Settings window (1.13+): no title strip, traffic lights over the sidebar */
+body.is-popout-modal.mod-macos.is-frameless:not(.is-fullscreen) {
+  padding-top: 0;
+  background-color: var(--tahoe-settings-content);
+}
+
+body.is-popout-modal.mod-macos.is-frameless:not(.is-fullscreen) .titlebar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--layer-popover);
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+body.is-popout-modal.mod-macos .titlebar-text {
+  display: none;
+}
+
+/* Sidebar */
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header {
+  width: var(--tahoe-settings-sidebar-w);
+  min-width: var(--tahoe-settings-sidebar-w);
+  margin: 0;
+  padding: 12px 10px;
+  border: none;
+  border-radius: 0;
+  background: var(--tahoe-settings-sidebar);
+  box-shadow: none;
+}
+
+body.is-popout-modal.mod-macos.is-frameless:not(.is-fullscreen) .modal.mod-settings .vertical-tab-header {
+  padding-top: 52px;
+  -webkit-app-region: drag;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header > * {
+  -webkit-app-region: no-drag;
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-search-container {
+  padding: 0 2px 14px;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header .search-input-container {
+  background: transparent;
+  box-shadow: none;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header .search-input-container input {
+  height: 30px;
+  font-size: 13px;
+  border-radius: var(--tahoe-capsule);
+  background: var(--tahoe-settings-search);
+  box-shadow:
+    inset 0 0 0 0.5px var(--tahoe-separator-strong),
+    inset 0 0.5px 1px rgb(0 0 0 / 0.04);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header .search-input-container input:focus {
+  box-shadow: inset 0 0 0 0.5px var(--interactive-accent), 0 0 0 3.5px hsla(var(--interactive-accent-hsl), 0.32);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header-group {
+  margin-bottom: 14px;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header-group:has(> [data-section="options"]) > .vertical-tab-header-group-title {
+  display: none;
+}
+
+body:not(.is-mobile) .vertical-tab-header-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  padding: 4px 10px 6px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 30px;
+  margin: 0 0 2px;
+  padding: 4px 8px;
+  border-radius: 9px;
+  font-size: 13px;
+  color: var(--text-normal);
+  transition: background-color var(--anim-duration-superfast);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item:hover:not(.is-active) {
+  background-color: var(--tahoe-fill-4);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  font-weight: 500;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item-chevron {
+  display: none;
+}
+
+/* Icon tiles, like System Settings */
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item-icon,
+.tahoe-settings-hero-icon {
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--tahoe-tile, #8e8e93) 72%, #ffffff),
+    var(--tahoe-tile, #8e8e93)
+  );
+  box-shadow: inset 0 0 0 0.5px var(--tahoe-tile-edge), 0 0.5px 1px rgb(0 0 0 / 0.14);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item-icon {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  --icon-size: 14px;
+  --icon-stroke: 2.1px;
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item.is-active .vertical-tab-nav-item-icon {
+  color: #ffffff;
+}
+
+[data-setting-id="about"] { --tahoe-tile: #8e8e93; }
+[data-setting-id="appearance"] { --tahoe-tile: #1c1c1e; }
+[data-setting-id="interface"] { --tahoe-tile: #5856d6; }
+[data-setting-id="editor"] { --tahoe-tile: #ff9500; }
+[data-setting-id="file"] { --tahoe-tile: #0a84ff; }
+[data-setting-id="hotkeys"] { --tahoe-tile: #8e8e93; }
+[data-setting-id="keychain"] { --tahoe-tile: #636366; }
+[data-setting-id="plugins"] { --tahoe-tile: #34c759; }
+[data-setting-id="community-plugins"] { --tahoe-tile: #af52de; }
+[data-setting-id="switcher"] { --tahoe-tile: #5856d6; }
+[data-setting-id="sync"] { --tahoe-tile: #7c5cff; }
+[data-setting-id="publish"] { --tahoe-tile: #5e5ce6; }
+[data-setting-id="backlink"],
+[data-setting-id="outgoing-link"],
+[data-setting-id="outline"] { --tahoe-tile: #007aff; }
+[data-setting-id="canvas"],
+[data-setting-id="slides"],
+[data-setting-id="random-note"] { --tahoe-tile: #ff9500; }
+[data-setting-id="page-preview"],
+[data-setting-id="properties"] { --tahoe-tile: #30b0c7; }
+[data-setting-id="daily-notes"],
+[data-setting-id="bookmarks"],
+[data-setting-id="audio-recorder"] { --tahoe-tile: #ff3b30; }
+[data-setting-id="templates"] { --tahoe-tile: #ffb800; }
+[data-setting-id="note-composer"] { --tahoe-tile: #ff2d55; }
+[data-setting-id="command-palette"] { --tahoe-tile: #3a3a3c; }
+[data-setting-id="file-recovery"],
+[data-setting-id="tag-pane"] { --tahoe-tile: #34c759; }
+[data-setting-id="graph"] { --tahoe-tile: #af52de; }
+[data-setting-id="bases"] { --tahoe-tile: #00c7be; }
+[data-setting-id="webviewer"],
+[data-setting-id="file-explorer"] { --tahoe-tile: #0a84ff; }
+[data-setting-id="tahoe-glass"] { --tahoe-tile: #32ade6; }
+[data-setting-id="tahoe-run"] { --tahoe-tile: #30d158; }
+[data-setting-id="tahoe-math"] { --tahoe-tile: #ff9f0a; }
+[data-setting-id="tahoe-organize"] { --tahoe-tile: #0a84ff; }
+[data-setting-id="tahoe-intelligence"] { --tahoe-tile: #bf5af2; }
+
+/* Tahoe Intelligence wears Apple Intelligence's gradient */
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item[data-setting-id="tahoe-intelligence"] .vertical-tab-nav-item-icon,
+.tahoe-settings-hero[data-setting-id="tahoe-intelligence"] .tahoe-settings-hero-icon {
+  background: linear-gradient(135deg, #0a84ff 0%, #bf5af2 42%, #ff375f 74%, #ff9f0a 100%);
+}
+
+.theme-dark [data-setting-id="appearance"],
+.theme-dark [data-setting-id="command-palette"] {
+  --tahoe-tile: #48484a;
+}
+
+/* Content pane */
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-content-container {
+  background: var(--tahoe-settings-content);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-content {
+  background: transparent;
+  padding: 20px 24px 40px;
+}
+
+body.is-popout-modal.mod-macos.is-frameless:not(.is-fullscreen) .modal.mod-settings .vertical-tab-content {
+  padding-top: 56px;
+}
+
+/* Back button: glass capsule */
+body:not(.is-mobile) .modal.mod-settings .modal-setting-back-button {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-normal);
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent 60%), var(--tahoe-glass);
+  -webkit-backdrop-filter: blur(10px) saturate(1.8);
+  backdrop-filter: blur(10px) saturate(1.8);
+  box-shadow: var(--tahoe-glass-shadow);
+  --icon-size: 16px;
+  --icon-stroke: 2.2px;
+}
+
+/* Sub-pages (Interface font, CSS snippets …): glass back capsule + title */
+body:not(.is-mobile) .modal.mod-settings .setting-page-titlebar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: var(--setting-group-max-width);
+  margin: -46px auto 14px;
+  padding: 6px 0 10px;
+  background: linear-gradient(to bottom, var(--tahoe-settings-content) 70%, transparent);
+  box-shadow: none;
+  border: none;
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-page-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-normal);
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-page-back-button {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-normal);
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent 60%), var(--tahoe-glass);
+  -webkit-backdrop-filter: blur(10px) saturate(1.8);
+  backdrop-filter: blur(10px) saturate(1.8);
+  box-shadow: var(--tahoe-glass-shadow);
+  --icon-size: 18px;
+  --icon-stroke: 2.2px;
+  transition: transform var(--anim-duration-moderate) var(--tahoe-spring);
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-page-back-button:active {
+  transform: scale(1.06);
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-page-desc {
+  max-width: var(--setting-group-max-width);
+  margin: 0 auto 14px;
+  padding: 0 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* "Clear ——●—— Tinted" labels on the Liquid Glass slider */
+.tahoe-glass-level-end {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Header card */
+.tahoe-settings-hero {
+  max-width: var(--setting-group-max-width);
+  margin: 0 auto 20px;
+  padding: 26px 28px 22px;
+  border-radius: 16px;
+  background: var(--tahoe-settings-card);
+  text-align: center;
+}
+
+.tahoe-settings-hero-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 13px;
+  --icon-size: 32px;
+  --icon-stroke: 1.9px;
+  box-shadow: inset 0 0 0 0.5px var(--tahoe-tile-edge), 0 1px 3px rgb(0 0 0 / 0.16);
+}
+
+.tahoe-settings-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  color: var(--text-normal);
+}
+
+.tahoe-settings-hero-desc {
+  max-width: 460px;
+  margin: 6px auto 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* Grouped cards */
+.setting-group .setting-items {
+  box-shadow: none;
+}
+
+.setting-item-heading .setting-item-name,
+.setting-group .setting-item-heading .setting-item-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.setting-item-name {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.setting-item-description {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  padding-top: 2px;
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-item-icon:not(:empty) {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin-inline-end: 4px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #a7a7ac, #8e8e93);
+  box-shadow: inset 0 0 0 0.5px var(--tahoe-tile-edge), 0 0.5px 1px rgb(0 0 0 / 0.14);
+  --icon-size: 16px;
+}
+
+/* Settings outside a group (plugins, older panes): consecutive rows merge
+   into one inset-grouped card with hairline dividers, as in System Settings */
+body .modal.mod-settings .vertical-tab-content > .setting-item:not(.setting-item-heading) {
+  background-color: var(--setting-items-background, var(--tahoe-card));
+  margin: 0 auto;
+  max-width: var(--setting-group-max-width);
+  padding: 11px 16px;
+  border: none;
+  border-radius: 0;
+  box-shadow: inset 0 1px 0 var(--tahoe-separator);
+}
+
+body .modal.mod-settings .vertical-tab-content > .setting-item:not(.setting-item-heading):is(:first-child, .setting-item-heading + .setting-item, :not(.setting-item) + .setting-item) {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: none;
+}
+
+body .modal.mod-settings .vertical-tab-content > .setting-item:not(.setting-item-heading):is(:last-child, :has(+ .setting-item-heading), :has(+ :not(.setting-item))) {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  margin-bottom: 18px;
+}
+
+.setting-item:has(.tahoe-glass-level-end) .slider-value {
+  display: none;
+}
+
+.vertical-tab-content > .setting-item-heading {
+  border: none;
+  padding: 18px 4px 8px;
+}
+
+/* ---- Notices (toasts) ---- */
+
+.notice-container {
+  top: 12px;
+  right: 12px;
+  gap: 8px;
+}
+
+.notice {
+  position: relative;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: none;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-normal);
+  background: var(--tahoe-sheen), var(--tahoe-glass-thick);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) var(--tahoe-lens,) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+  animation: tahoe-drop var(--anim-duration-moderate) var(--tahoe-spring);
+}
+
+/* ---- Tooltips ---- */
+
+.tooltip {
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-normal);
+  background: var(--tahoe-glass-thick);
+  -webkit-backdrop-filter: blur(20px) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(20px) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-glass-shadow);
+  border: none;
+}
+
+.tooltip .tooltip-arrow {
+  display: none;
+}
+
+/* ---- Hover preview ---- */
+
+.popover.hover-popover {
+  border: none;
+  border-radius: var(--tahoe-radius-popover);
+  background: color-mix(in srgb, var(--background-primary) 90%, transparent);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+  overflow: hidden;
+}
+
+.popover.hover-popover .markdown-embed {
+  background: transparent;
+  border: none;
+}
+
+/* ---- Status bar: a small floating capsule ---- */
+
+body:not(.is-mobile) .status-bar {
+  bottom: 12px;
+  right: 12px;
+  padding: 3px 12px;
+  min-height: 24px;
+  align-items: center;
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-muted);
+}
+
+body:not(.is-mobile) .status-bar-item {
+  padding: 1px 4px;
+  border-radius: var(--tahoe-capsule);
+}
+
+body:not(.is-mobile) .status-bar-item.mod-clickable:hover {
+  background-color: var(--tahoe-fill-3);
+}
+
+/* =========================================================================
+   5. Controls
+   ========================================================================= */
+
+/* Buttons */
+button:not(.clickable-icon) {
+  border-radius: var(--button-radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 14px;
+  transition:
+    background-color var(--anim-duration-fast),
+    box-shadow var(--anim-duration-fast),
+    transform var(--anim-duration-moderate) var(--tahoe-spring);
+}
+
+button:not(.clickable-icon):active {
+  transform: scale(0.97);
+}
+
+button.mod-cta {
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0));
+  box-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.35),
+    0 0 0 0.5px rgb(0 0 0 / 0.08),
+    0 1px 2px rgb(0 0 0 / 0.14);
+}
+
+button.mod-warning {
+  background-color: var(--color-red);
+  color: #ffffff;
+  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 0.3), 0 1px 2px rgb(0 0 0 / 0.14);
+}
+
+/* Text fields */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+input[type="datetime-local"],
+textarea {
+  border-radius: var(--input-radius);
+  border: none;
+  box-shadow: inset 0 0 0 0.5px var(--tahoe-separator-strong), inset 0 1px 1px rgb(0 0 0 / 0.03);
+  transition: box-shadow var(--anim-duration-fast);
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+input[type="text"]:focus-visible,
+input[type="search"]:focus-visible,
+textarea:focus-visible {
+  box-shadow: inset 0 0 0 0.5px var(--interactive-accent), 0 0 0 3.5px hsla(var(--interactive-accent-hsl), 0.32);
+}
+
+/* Search fields are capsules */
+.search-input-container input,
+.search-input-container input[type="search"] {
+  border-radius: var(--tahoe-capsule);
+  padding-inline-start: 32px;
+}
+
+.search-input-container::before {
+  inset-inline-start: 11px;
+}
+
+body:not(.is-mobile) .mod-sidedock .search-input-container input {
+  background: var(--tahoe-fill-4);
+  box-shadow: none;
+  height: 30px;
+}
+
+body:not(.is-mobile) .mod-sidedock .search-input-container input:focus {
+  background: var(--background-modifier-form-field);
+  box-shadow: inset 0 0 0 0.5px var(--interactive-accent), 0 0 0 3.5px hsla(var(--interactive-accent-hsl), 0.32);
+}
+
+/* Pop-up buttons */
+.dropdown,
+select {
+  border-radius: var(--tahoe-capsule);
+  padding-inline-start: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Switches — the knob turns into a glass lens while held */
+.checkbox-container {
+  background-color: var(--tahoe-fill-1);
+  box-shadow: none;
+  overflow: visible;
+  transition: background-color var(--anim-duration-moderate) var(--tahoe-ease);
+}
+
+.checkbox-container.is-enabled {
+  background-color: var(--interactive-accent);
+}
+
+.checkbox-container::after {
+  background-color: #ffffff;
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 1.5px 3px rgb(0 0 0 / 0.18), 0 3px 8px rgb(0 0 0 / 0.08);
+  transition:
+    transform var(--anim-duration-moderate) var(--tahoe-spring),
+    width var(--anim-duration-fast) var(--tahoe-ease),
+    height var(--anim-duration-fast) var(--tahoe-ease),
+    margin var(--anim-duration-fast) var(--tahoe-ease),
+    background-color var(--anim-duration-fast),
+    box-shadow var(--anim-duration-fast);
+}
+
+.checkbox-container:active::after {
+  width: calc(var(--toggle-s-thumb-width) + 8px);
+  height: calc(var(--toggle-s-thumb-height) + 6px);
+  margin-top: calc(var(--toggle-s-border-width) - 3px);
+  transform: translate3d(calc(var(--toggle-s-border-width) - 4px), 0, 0);
+  background-color: rgb(255 255 255 / 0.28);
+  -webkit-backdrop-filter: blur(0.5px) saturate(1.6) brightness(1.15);
+  backdrop-filter: blur(0.5px) saturate(1.6) brightness(1.15);
+  box-shadow:
+    inset 1px 1px 1px -0.5px rgb(255 255 255 / 0.95),
+    inset -1px -1px 1px -0.5px rgb(255 255 255 / 0.7),
+    inset 0 0 6px rgb(255 255 255 / 0.35),
+    0 2px 10px rgb(0 0 0 / 0.16);
+}
+
+.checkbox-container.is-enabled:active::after {
+  transform: translate3d(calc(var(--toggle-s-width) - var(--toggle-s-thumb-width) - var(--toggle-s-border-width) - 4px), 0, 0);
+}
+
+/* Sliders */
+input[type="range"] {
+  background-color: var(--tahoe-fill-1);
+  border-radius: var(--tahoe-capsule);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.06), 0 1.5px 3px rgb(0 0 0 / 0.18), 0 3px 8px rgb(0 0 0 / 0.08);
+  transition:
+    scale var(--anim-duration-moderate) var(--tahoe-spring),
+    background-color var(--anim-duration-fast),
+    box-shadow var(--anim-duration-fast);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  scale: 1.35;
+  background: rgb(255 255 255 / 0.3);
+  box-shadow:
+    inset 1px 1px 1px -0.5px rgb(255 255 255 / 0.95),
+    inset -1px -1px 1px -0.5px rgb(255 255 255 / 0.7),
+    0 2px 10px rgb(0 0 0 / 0.16);
+}
+
+/* Checkboxes (settings & dialogs) */
+input[type="checkbox"] {
+  border-width: 1px;
+  transition: background-color var(--anim-duration-fast), border-color var(--anim-duration-fast);
+}
+
+/* Generic clickable icons */
+.clickable-icon {
+  border-radius: var(--clickable-icon-radius);
+  transition: background-color var(--anim-duration-superfast), color var(--anim-duration-superfast);
+}
+
+.clickable-icon:hover {
+  background-color: var(--tahoe-fill-4);
+}
+
+/* Focus rings */
+:focus-visible {
+  outline-color: hsla(var(--interactive-accent-hsl), 0.55);
+}
+
+/* Scrollbars: thin overlay style, visible while hovering */
+body:not(.native-scrollbars) ::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+body:not(.native-scrollbars) ::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--tahoe-capsule);
+  min-height: 40px;
+}
+
+body:not(.native-scrollbars):not(.is-mobile) div:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* =========================================================================
+   6. Editor & reading
+   ========================================================================= */
+
+.markdown-source-view,
+.markdown-rendered {
+  --checkbox-radius: 50%;
+  --checkbox-size: 18px;
+  --checkbox-border-color: var(--tahoe-label-3);
+}
+
+.inline-title {
+  letter-spacing: -0.028em;
+  margin-bottom: 0.4em;
+}
+
+.markdown-rendered h1,
+.HyperMD-header-1 {
+  letter-spacing: var(--h1-letter-spacing);
+}
+
+.markdown-rendered h2,
+.HyperMD-header-2 {
+  letter-spacing: var(--h2-letter-spacing);
+}
+
+.markdown-rendered h3,
+.HyperMD-header-3 {
+  letter-spacing: var(--h3-letter-spacing);
+}
+
+/* Round, Notes-style checklists */
+input[type="checkbox"].task-list-item-checkbox {
+  border-width: 1.5px;
+  margin-inline-end: 0.45em;
+}
+
+input[type="checkbox"].task-list-item-checkbox:checked {
+  border-color: var(--interactive-accent);
+}
+
+input[type="checkbox"].task-list-item-checkbox:checked::after {
+  -webkit-mask-size: 70%;
+}
+
+body.tahoe-strike-done {
+  --checklist-done-decoration: line-through;
+}
+
+/* Inline code & blocks */
+.markdown-rendered code,
+.cm-s-obsidian span.cm-inline-code {
+  border-radius: 5px;
+  padding: 0.12em 0.36em;
+}
+
+.markdown-rendered pre {
+  border-radius: var(--tahoe-radius-card);
+  padding: 14px 16px;
+  box-shadow: inset 0 0 0 0.5px var(--tahoe-separator);
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-codeblock-begin-bg {
+  border-top-left-radius: var(--tahoe-radius-card);
+  border-top-right-radius: var(--tahoe-radius-card);
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-codeblock-end-bg {
+  border-bottom-left-radius: var(--tahoe-radius-card);
+  border-bottom-right-radius: var(--tahoe-radius-card);
+}
+
+.copy-code-button {
+  border-radius: var(--tahoe-capsule);
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--tahoe-glass);
+  -webkit-backdrop-filter: blur(8px) saturate(1.6);
+  backdrop-filter: blur(8px) saturate(1.6);
+  box-shadow: var(--tahoe-glass-shadow-raised);
+}
+
+/* Blockquote: rounded bar */
+.markdown-rendered blockquote {
+  border-inline-start: none;
+  position: relative;
+  padding-inline-start: 1.1em;
+}
+
+.markdown-rendered blockquote::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: var(--blockquote-border-thickness);
+  border-radius: var(--tahoe-capsule);
+  background-color: var(--blockquote-border-color);
+}
+
+/* Callouts: soft tinted cards */
+.callout {
+  background-color: color-mix(in srgb, var(--callout-color) 10%, transparent);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--callout-color) 22%, transparent);
+}
+
+.callout-title {
+  gap: 8px;
+}
+
+/* Embeds & images */
+.markdown-embed,
+.file-embed {
+  border-radius: var(--tahoe-radius-card);
+}
+
+.markdown-rendered img:not(.emoji):not([width]),
+.markdown-source-view .internal-embed.image-embed img:not([width]) {
+  border-radius: 10px;
+}
+
+/* Tags */
+.tag,
+a.tag {
+  border: none;
+  line-height: 1.5;
+}
+
+/* Tables */
+.markdown-rendered table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.markdown-rendered thead th {
+  border-bottom-width: 1px;
+}
+
+.markdown-rendered :is(th, td) {
+  border-inline: none;
+}
+
+/* Properties (frontmatter) */
+.metadata-container {
+  --metadata-label-text-color: var(--text-muted);
+  margin-bottom: 1.6em;
+}
+
+.metadata-property {
+  border-radius: 8px;
+}
+
+.metadata-container input,
+.metadata-container input:is([type="text"], [type="date"], [type="datetime-local"], [type="number"]),
+.metadata-property-key-input {
+  box-shadow: none;
+  background: transparent;
+}
+
+.metadata-container input:focus,
+.metadata-container input:focus-visible {
+  box-shadow: none;
+}
+
+.metadata-properties-heading {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Horizontal rule */
+.markdown-rendered hr,
+.markdown-source-view.mod-cm6 .hr {
+  border-top-width: 1px;
+}
+
+/* Highlights */
+.markdown-rendered mark,
+.cm-s-obsidian span.cm-highlight {
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+/* =========================================================================
+   7. Canvas, graph, empty states
+   ========================================================================= */
+
+.canvas-controls .canvas-control-group {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.canvas-control-item {
+  border: none;
+  background: transparent;
+}
+
+.canvas-card-menu {
+  border-radius: var(--tahoe-capsule);
+  padding: 4px 8px;
+}
+
+.canvas-node-container {
+  border-radius: 10px;
+}
+
+.graph-controls {
+  border-radius: 12px;
+  border: none;
+  background: var(--tahoe-glass-thick);
+  -webkit-backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-menu-blur)) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-glass-shadow);
+}
+
+.document-search-container {
+  margin-inline: auto;
+  width: min(560px, calc(100% - 24px));
+  border-radius: 12px;
+  padding: 6px;
+}
+
+.empty-state-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.empty-state-action {
+  border-radius: var(--tahoe-capsule);
+  padding: 4px 12px;
+  color: var(--text-accent);
+}
+
+/* =========================================================================
+   8. Translucent window (Settings → Appearance → Translucent window)
+   The desktop shows through the sidebars; the content stays opaque.
+   ========================================================================= */
+
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) {
+  --tahoe-panel: var(--tahoe-panel-translucent);
+}
+
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) :is(.app-container, .horizontal-main-container, .workspace) {
+  background-color: transparent !important;
+}
+
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) .workspace-split.mod-root,
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) .workspace-ribbon.mod-left.is-collapsed {
+  background-color: var(--background-primary) !important;
+}
+
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) .workspace-split.mod-sidedock,
+body.is-translucent:not(.is-fullscreen):not(.is-mobile) .workspace-ribbon.mod-left:not(.is-collapsed) {
+  background-color: var(--tahoe-panel) !important;
+}
+
+/* =========================================================================
+   9. Motion
+   ========================================================================= */
+
+@keyframes tahoe-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes tahoe-sheet {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+  }
+}
+
+@keyframes tahoe-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+/* Liquid motion, with the Tahoe Glass plugin. Glass opens like a drop
+   landing — squashed at first, springing just past its size, then settling —
+   and controls squish a little under your finger. */
+@keyframes tahoe-liquid-in {
+  from {
+    opacity: 0;
+    transform: scale(0.84, 0.7);
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body.tahoe-refraction .menu {
+    animation: tahoe-liquid-in 0.42s var(--tahoe-spring);
+  }
+
+  body.tahoe-refraction .suggestion-container {
+    animation: tahoe-liquid-in 0.38s var(--tahoe-spring);
+    transform-origin: top left;
+  }
+
+  body.tahoe-refraction .prompt {
+    animation: tahoe-liquid-in 0.46s var(--tahoe-spring);
+  }
+
+  body.tahoe-refraction .cm-editor > .cm-tooltip:is(.cm-tooltip-autocomplete, .cm-tooltip-hover, .cm-tooltip-lint) {
+    animation: tahoe-liquid-in 0.32s var(--tahoe-spring);
+    transform-origin: top left;
+  }
+
+  body.tahoe-refraction .notice {
+    animation: tahoe-liquid-in 0.42s var(--tahoe-spring);
+    transform-origin: top right;
+  }
+
+  body.tahoe-refraction:not(.is-mobile) .mod-root .workspace-tab-header-container :is(.sidebar-toggle-button, .workspace-tab-header-new-tab, .workspace-tab-header-tab-list) .clickable-icon:active,
+  body.tahoe-refraction:not(.is-mobile) .mod-root :is(.view-header-nav-buttons, .view-actions):active {
+    transform: scale(1.08, 0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    --tahoe-spring: var(--tahoe-ease);
+  }
+
+  .menu,
+  .prompt,
+  .modal,
+  .notice {
+    animation: none;
+  }
+}
+
+/* =========================================================================
+   10. iPhone — iOS Liquid Glass
+   ========================================================================= */
+
+body.is-mobile {
+  --font-ui-smaller: 13px;
+  --font-ui-small: 15px;
+  --font-ui-medium: 17px;
+  --font-ui-large: 22px;
+  --nav-item-size: 17px;
+  --nav-item-padding: 11px 14px 11px 30px;
+  --nav-item-parent-padding: 11px 14px 11px 30px;
+  --nav-item-radius: 12px;
+  --tahoe-radius-sheet: 38px;
+  --modal-radius: 38px;
+  --menu-radius: 30px;
+  --tahoe-radius-menu: 30px;
+  --tahoe-radius-menu-item: 22px;
+  --input-height: 44px;
+  --input-radius: 12px;
+  --setting-items-radius: 22px;
+  --setting-items-padding-x: 18px;
+  --setting-items-padding-y: 13px;
+  --mobile-sidebar-radius: 38px;
+
+  /* iOS 26 switch: wide track, capsule knob */
+  --toggle-width: 62px;
+  --toggle-thumb-width: 38px;
+  --toggle-thumb-height: 24px;
+  --toggle-border-width: 2px;
+  --toggle-s-width: var(--toggle-width);
+  --toggle-s-thumb-width: var(--toggle-thumb-width);
+  --toggle-s-thumb-height: var(--toggle-thumb-height);
+  --toggle-s-border-width: var(--toggle-border-width);
+
+  --slider-thumb-height: 24px;
+  --slider-thumb-width: 38px;
+  --slider-thumb-y: -10px;
+  --slider-track-height: 6px;
+
+  /* Obsidian's floating nav reads these */
+  --raised-blur: blur(14px) saturate(1.9) brightness(1.04);
+  --raised-mask-border-width: 1px;
+  --raised-mask-background: linear-gradient(150deg, var(--tahoe-rim-hi), transparent 30%, transparent 65%, var(--tahoe-rim-lo)) border-box no-repeat;
+  --navbar-radius: 999px;
+}
+
+body.is-mobile.theme-light {
+  --tahoe-bg: #ffffff;
+  --tahoe-panel: #f2f2f7;
+  --tahoe-sheet: #f2f2f7;
+  --tahoe-label-2: #3c3c43b3;
+  --raised-background: var(--tahoe-glass);
+  --raised-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.9),
+    0 0 0 0.5px rgb(0 0 0 / 0.06),
+    0 8px 28px -6px rgb(0 0 0 / 0.16);
+  --mobile-sidebar-background: var(--tahoe-glass-sheet);
+}
+
+body.is-mobile.theme-dark {
+  --tahoe-bg: #000000;
+  --tahoe-bg-alt: #1c1c1e;
+  --tahoe-panel: #1c1c1e;
+  --tahoe-sheet: #1c1c1e;
+  --tahoe-card: #1c1c1e;
+  --raised-background: var(--tahoe-glass);
+  --raised-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.2),
+    0 0 0 0.5px rgb(0 0 0 / 0.5),
+    0 8px 28px -6px rgb(0 0 0 / 0.6);
+  --mobile-sidebar-background: var(--tahoe-glass-sheet);
+}
+
+body.is-mobile .checkbox-container.is-enabled {
+  background-color: var(--color-green);
+}
+
+/* Floating glass tab bar */
+body.is-mobile .mobile-navbar {
+  border: none;
+}
+
+body.is-mobile .mobile-navbar-actions {
+  gap: 4px;
+}
+
+body.is-mobile .mobile-navbar-action {
+  border-radius: var(--tahoe-capsule);
+  color: var(--text-normal);
+}
+
+body.is-mobile .mobile-navbar-action:active {
+  background-color: var(--tahoe-fill-3);
+}
+
+/* Navigation bar: large-ish title, glass circular buttons */
+body.is-phone .view-header-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+body.is-phone .view-header-left .clickable-icon,
+body.is-phone .view-actions {
+  height: 44px;
+  border-radius: var(--tahoe-capsule);
+  background: var(--tahoe-glass);
+  -webkit-backdrop-filter: blur(12px) saturate(1.9);
+  backdrop-filter: blur(12px) saturate(1.9);
+  box-shadow: var(--tahoe-glass-shadow);
+  transition: transform var(--anim-duration-moderate) var(--tahoe-spring);
+}
+
+body.is-phone .view-header-left .clickable-icon {
+  width: 44px;
+}
+
+/* Adjacent bar buttons share one capsule, as on iOS 26 */
+body.is-phone .view-actions {
+  gap: 0;
+  padding: 0 4px;
+  align-items: center;
+}
+
+body.is-phone .view-header .clickable-icon {
+  --icon-size: 20px;
+  color: var(--text-normal);
+}
+
+body.is-phone .view-actions .clickable-icon {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.is-phone .view-actions:not(:has(> .clickable-icon:not(.mod-bookmark))) {
+  display: none;
+}
+
+body.is-phone .view-header-left .clickable-icon:active,
+body.is-phone .view-actions:active {
+  transform: scale(1.1);
+}
+
+/* Drawers: floating glass sheets concentric with the display corners */
+body.is-mobile .workspace-drawer {
+  border: none;
+  border-radius: var(--mobile-sidebar-radius);
+  margin: max(var(--safe-area-inset-top), 8px) 0 max(var(--safe-area-inset-bottom), 8px);
+  background: var(--tahoe-glass-sheet);
+  -webkit-backdrop-filter: blur(var(--tahoe-sheet-blur)) saturate(var(--tahoe-saturate));
+  backdrop-filter: blur(var(--tahoe-sheet-blur)) saturate(var(--tahoe-saturate));
+  box-shadow: var(--tahoe-float-shadow);
+}
+
+body.is-mobile .workspace-drawer.mod-left {
+  margin-left: 8px;
+}
+
+body.is-mobile .workspace-drawer.mod-right {
+  margin-right: 8px;
+}
+
+body.is-mobile .workspace-drawer-inner,
+body.is-mobile .workspace-drawer :is(.workspace-leaf, .workspace-leaf-content, .view-content, .workspace-drawer-active-tab-container) {
+  background: transparent;
+}
+
+/* Obsidian fades the list under the drawer controls with an opaque
+   gradient; on glass it reads as a box, so let the glass do the work. */
+body.is-mobile.is-floating-nav .workspace-drawer .nav-buttons-container::after,
+body.is-mobile.is-floating-nav .workspace-drawer .workspace-leaf-content::after {
+  display: none;
+}
+
+/* Keyboard toolbar: floating capsule */
+body.is-mobile .mobile-toolbar {
+  margin: 0 8px 6px;
+  border-radius: var(--tahoe-capsule);
+  background: var(--tahoe-glass-thick);
+  -webkit-backdrop-filter: blur(20px) saturate(1.9);
+  backdrop-filter: blur(20px) saturate(1.9);
+  box-shadow: var(--tahoe-glass-shadow);
+  border: none;
+}
+
+body.is-mobile .mobile-toolbar-option {
+  border-radius: var(--tahoe-capsule);
+}
+
+/* Menus become floating action sheets */
+body.is-phone .menu {
+  margin: 0 8px max(var(--safe-area-inset-bottom), 8px);
+  border-radius: var(--tahoe-radius-menu);
+  padding: 10px;
+  background: var(--tahoe-glass-sheet);
+}
+
+body.is-phone .menu-item {
+  min-height: 48px;
+  font-size: 17px;
+  padding: 10px 16px;
+}
+
+body.is-phone .menu-item:not(.is-disabled):not(.is-label):active {
+  background-color: var(--tahoe-fill-3);
+  color: var(--text-normal);
+}
+
+body.is-phone .menu-item:not(.is-disabled):not(.is-label).selected {
+  background-color: transparent;
+  color: var(--text-normal);
+}
+
+body.is-phone .menu-item:not(.is-disabled):not(.is-label).selected .menu-item-icon {
+  color: var(--text-muted);
+}
+
+/* Sheets */
+body.is-phone .modal {
+  border-radius: var(--modal-radius) var(--modal-radius) 0 0;
+  background: var(--tahoe-glass-sheet);
+}
+
+body.is-phone .prompt {
+  border-radius: 30px;
+}
+
+body.is-mobile .modal.mod-settings,
+body.is-mobile .modal.mod-settings .vertical-tab-content-container {
+  background-color: var(--tahoe-sheet);
+}
+
+body.is-mobile .vertical-tab-nav-item {
+  font-size: 17px;
+}
+
+/* Search fields: capsule */
+body.is-mobile .search-input-container input {
+  border-radius: var(--tahoe-capsule);
+  background-color: var(--tahoe-fill-3);
+  box-shadow: none;
+}
+
+/* Rows in the file drawer */
+body.is-mobile .tree-item-self.is-active {
+  background-color: var(--tahoe-fill-3);
+}
