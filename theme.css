@@ -32,6 +32,12 @@ settings:
     max: 1
     step: 0.05
   -
+    id: tahoe-glass-plugin
+    title: Real refraction
+    description: "The [Tahoe Glass](https://github.com/krishnanefx/obsidian-tahoe-glass) plugin makes the toolbar, menus and command palette bend what's behind them, with colour dispersion and glare. macOS."
+    type: info-text
+    markdown: true
+  -
     id: tahoe-no-scroll-edge
     title: Hide the toolbar band
     description: Let notes scroll under the toolbar without the glass band

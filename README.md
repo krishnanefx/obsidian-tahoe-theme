@@ -1,33 +1,52 @@
 # Tahoe
 
-A clean, Mac-like theme for Obsidian: edge-to-edge sidebars with coloured icons, glass toolbar capsules, a Spotlight-style command palette and settings laid out like the Mac's System Settings. In light and dark.
+**Obsidian, at home on your Mac.**
 
-![Tahoe in light mode](images/light.png)
+[![Downloads](https://img.shields.io/github/downloads/krishnanefx/obsidian-tahoe-theme/total?label=downloads)](https://github.com/krishnanefx/obsidian-tahoe-theme/releases)
+[![Latest release](https://img.shields.io/github/v/release/krishnanefx/obsidian-tahoe-theme?label=release)](https://github.com/krishnanefx/obsidian-tahoe-theme/releases/latest)
+[![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-![Tahoe in dark mode](images/dark.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/dark.png">
+  <img alt="Tahoe in Obsidian: a sidebar with coloured folder icons, a glass toolbar and a note with callouts and a checklist" src="images/light.png">
+</picture>
 
-## Highlights
+## The look
 
-- **Edge-to-edge sidebars.** No floating card or shadow; the ribbon is part of the sidebar column.
-- **Sidebar icons in colour.** Folders take the accent colour and open and close as you expand them. Notes, images, PDFs, canvases and bases each get their own icon and tint. The selection fills with the accent colour while the sidebar is the active pane, and turns grey when it isn't.
-- **A glass toolbar.** Tabs sit in one capsule with the active tab raised. Back and forward, the sidebar toggles, new tab and the view actions are capsules too. When a note scrolls underneath, a frosted band fades in behind them, done in CSS with scroll-driven animation.
-- **Glass from Clear to Tinted.** One level controls every glass surface: toolbar, menus, the command palette, notices and sheets.
-- **Mac proportions.** Menu and window corners, spacing and control sizes are taken from macOS.
-- **Inactive windows step back.** Toolbar controls and the title dim, and sidebar icons lose their colour.
-- **System typography and colours.** The system font (SF Pro on a Mac), system label and accent colours, and Xcode-style code colours.
-- **A Spotlight-style command palette** with a large search field.
-- **Settings like System Settings.** A flush sidebar with coloured icon tiles, grouped cards for each section and capsule controls.
-- **Controls.** Capsule buttons and pop-ups, switches, capsule sliders and round checklist boxes.
-- **Phones and tablets.** A floating tab bar, capsule nav-bar buttons, floating sheets for menus and drawers, and grouped settings.
+**Like the other apps on your Mac.** The system font, the system's label and accent colours, and the corners, spacing and control sizes of macOS. Sidebars run edge to edge, with coloured icons for folders, notes, images, PDFs, canvases and bases. In light and dark.
 
-## Options
+![Settings laid out like System Settings: coloured icon tiles in a flush sidebar, and grouped cards with capsule controls](images/settings.png)
 
-With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin you can:
+**Settings like System Settings,** with coloured icon tiles and grouped cards. Buttons and pop-ups are capsules, checklist boxes are round, and windows you aren't using step back: their controls dim and the sidebar icons lose their colour.
 
-- set the glass level, from Clear to Tinted;
-- hide the frosted toolbar band;
-- hide the sidebar file icons;
-- strike through completed tasks.
+## The glass
+
+![The toolbar's capsules over a note that has scrolled underneath, with a frosted band behind them](images/toolbar.png)
+
+**A glass toolbar.** Tabs sit in one capsule, with the active tab raised, and the other controls are capsules too. When a note scrolls under them, a frosted band fades in behind.
+
+![The command palette over a note, on frosted glass, with a large search field](images/palette.png)
+
+**One glass, from Clear to Tinted.** The toolbar, menus, the command palette, notices and sheets share one glass level, which you can set with Style Settings. The command palette is Spotlight-style, with a large search field.
+
+![With Tahoe Glass, the command palette bends the coloured callouts behind it at its edges](images/glass.png)
+
+**Real refraction, with [Tahoe Glass](https://github.com/krishnanefx/obsidian-tahoe-glass).** The optional plugin makes the glass bend what's behind it, with colour dispersion, glare and a highlight that follows the pointer. macOS.
+
+## On iPhone and iPad
+
+<img src="images/phone.png" alt="Tahoe on an iPhone: a note with a floating tab bar at the bottom, and the file list in a floating sheet" width="560">
+
+**Made for touch, too.** A floating tab bar, capsule buttons in the nav bar, floating sheets for menus and drawers, and grouped settings.
+
+## What it's for
+
+Tahoe is for people who'd like Obsidian to feel like a Mac app without setting anything up. Install it and that's the look: there are four options, and you don't need any of them.
+
+## Pairs with
+
+- **[Style Settings](https://github.com/mgmeyers/obsidian-style-settings):** set the glass level from Clear to Tinted, hide the frosted toolbar band, hide the sidebar file icons, and strike through completed tasks.
+- **[Tahoe Glass](https://github.com/krishnanefx/obsidian-tahoe-glass):** real refraction for the glass, and header cards on settings pages.
 
 ## Tips
 
@@ -62,6 +81,10 @@ Tahoe is a set of plugins and a theme that work on their own and fit together.
 - **With [Tahoe Organize](https://github.com/krishnanefx/obsidian-tahoe-organize):** Vault health, iCloud conflicts and inbox triage use the theme's settings-style cards.
 - **With [Tahoe Intelligence](https://github.com/krishnanefx/obsidian-tahoe-intelligence):** the Ask, Writing help and Distill sheets and the ✦ button take the theme's glass.
 <!-- /tahoe-family -->
+
+## Feedback
+
+Questions are welcome in [Discussions](https://github.com/krishnanefx/obsidian-tahoe-theme/discussions), and bugs and ideas in [Issues](https://github.com/krishnanefx/obsidian-tahoe-theme/issues/new/choose). If Tahoe is useful to you, a star helps others find it.
 
 ## Credits
 
