@@ -8,6 +8,8 @@
 [![Latest release](https://img.shields.io/github/v/release/krishnanefx/obsidian-tahoe-theme?label=release)](https://github.com/krishnanefx/obsidian-tahoe-theme/releases/latest)
 [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+![Tahoe in Obsidian, switching from light to dark](images/demo.gif)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/dark.png">
   <img alt="Tahoe in Obsidian: a sidebar with coloured folder icons, a glass toolbar and a note with callouts and a checklist" src="images/light.png">
