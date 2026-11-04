@@ -2,6 +2,8 @@
 
 **Obsidian, at home on your Mac.**
 
+**Install:** in Obsidian, open Settings → Appearance → Themes, search for “Tahoe” and install it. ([Directory page](https://community.obsidian.md/themes/tahoe))
+
 [![Downloads](https://img.shields.io/github/downloads/krishnanefx/obsidian-tahoe-theme/total?label=downloads)](https://github.com/krishnanefx/obsidian-tahoe-theme/releases)
 [![Latest release](https://img.shields.io/github/v/release/krishnanefx/obsidian-tahoe-theme?label=release)](https://github.com/krishnanefx/obsidian-tahoe-theme/releases/latest)
 [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)

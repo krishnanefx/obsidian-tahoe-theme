@@ -57,6 +57,11 @@ settings:
     id: tahoe-strike-done
     title: Strike through completed tasks
     type: class-toggle
+  -
+    id: tahoe-compact-tree
+    title: Compact sidebar rows
+    description: Tighter rows in the file explorer and other sidebar lists (Mac)
+    type: class-toggle
 */
 
 /* =========================================================================
@@ -3047,4 +3052,13 @@ body.is-mobile .search-input-container input {
 /* Rows in the file drawer */
 body.is-mobile .tree-item-self.is-active {
   background-color: var(--tahoe-fill-3);
+}
+
+/* =========================================================================
+   11. Style Settings options
+   ========================================================================= */
+
+body.tahoe-compact-tree:not(.is-mobile) {
+  --nav-item-padding: 2px 10px 2px 26px;
+  --nav-item-parent-padding: 2px 10px 2px 26px;
 }
