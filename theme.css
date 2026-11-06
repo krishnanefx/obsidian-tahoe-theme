@@ -67,6 +67,22 @@ settings:
     title: Lighter headings
     description: Semibold headings instead of bold
     type: class-toggle
+  -
+    id: tahoe-appearance-heading
+    title: Look & feel
+    type: heading
+    level: 2
+    collapsed: true
+  -
+    id: tahoe-radius-window
+    title: Window corner radius
+    description: Panels follow it. Menus and sheets keep their own sizes.
+    type: variable-number-slider
+    default: 16
+    min: 6
+    max: 28
+    step: 1
+    format: px
 */
 
 /* =========================================================================
