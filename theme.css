@@ -83,6 +83,13 @@ settings:
     max: 28
     step: 1
     format: px
+  -
+    id: accent
+    title: Accent color
+    description: Overrides the accent color from Settings → Appearance
+    type: variable-color
+    format: hsl-split
+    default: "#007AFF"
 */
 
 /* =========================================================================
