@@ -90,6 +90,14 @@ settings:
     type: variable-color
     format: hsl-split
     default: "#007AFF"
+  -
+    id: line-height-normal
+    title: Line height
+    type: variable-number-slider
+    default: 1.55
+    min: 1.2
+    max: 2
+    step: 0.05
 */
 
 /* =========================================================================
