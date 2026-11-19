@@ -98,6 +98,16 @@ settings:
     min: 1.2
     max: 2
     step: 0.05
+  -
+    id: file-line-width
+    title: Readable line width
+    description: Applies when Readable line length is on (Settings → Editor)
+    type: variable-number-slider
+    default: 700
+    min: 480
+    max: 1200
+    step: 20
+    format: px
 */
 
 /* =========================================================================
