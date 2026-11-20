@@ -108,6 +108,11 @@ settings:
     max: 1200
     step: 20
     format: px
+  -
+    id: tahoe-no-liquid-motion
+    title: Turn off liquid motion
+    description: Menus and notices open without the spring, and controls don't squish
+    type: class-toggle
 */
 
 /* =========================================================================
@@ -2839,6 +2844,19 @@ body.is-translucent:not(.is-fullscreen):not(.is-mobile) .workspace-split.mod-lef
   body.tahoe-refraction:not(.is-mobile) .mod-root :is(.view-header-nav-buttons, .view-actions):active {
     transform: scale(1.08, 0.94);
   }
+}
+
+/* Style Settings → Turn off liquid motion */
+body.tahoe-no-liquid-motion {
+  --tahoe-spring: var(--tahoe-ease);
+}
+
+body.tahoe-no-liquid-motion :is(.menu, .suggestion-container, .prompt, .notice, .cm-tooltip) {
+  animation: none !important;
+}
+
+body.tahoe-no-liquid-motion :is(.view-header-nav-buttons, .view-actions, .clickable-icon):active {
+  transform: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
