@@ -113,6 +113,10 @@ settings:
     title: Turn off liquid motion
     description: Menus and notices open without the spring, and controls don't squish
     type: class-toggle
+  -
+    id: tahoe-hide-status-bar
+    title: Hide the status bar
+    type: class-toggle
 */
 
 /* =========================================================================
@@ -3135,4 +3139,8 @@ body.tahoe-light-headings {
 body.tahoe-compact-tree:not(.is-mobile) {
   --nav-item-padding: 2px 10px 2px 26px;
   --nav-item-parent-padding: 2px 10px 2px 26px;
+}
+
+body.tahoe-hide-status-bar .status-bar {
+  display: none;
 }
