@@ -117,6 +117,11 @@ settings:
     id: tahoe-hide-status-bar
     title: Hide the status bar
     type: class-toggle
+  -
+    id: tahoe-flat-glass
+    title: Flat glass
+    description: Remove the edge shadows and highlights from glass surfaces
+    type: class-toggle
 */
 
 /* =========================================================================
@@ -3143,4 +3148,10 @@ body.tahoe-compact-tree:not(.is-mobile) {
 
 body.tahoe-hide-status-bar .status-bar {
   display: none;
+}
+
+body.tahoe-flat-glass.theme-light,
+body.tahoe-flat-glass.theme-dark {
+  --tahoe-glass-shadow: none;
+  --tahoe-glass-shadow-raised: none;
 }
