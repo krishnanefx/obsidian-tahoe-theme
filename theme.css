@@ -122,6 +122,11 @@ settings:
     title: Flat glass
     description: Remove the edge shadows and highlights from glass surfaces
     type: class-toggle
+  -
+    id: tahoe-large-targets
+    title: Larger tap targets
+    description: Taller rows and fields on iPhone and iPad
+    type: class-toggle
 */
 
 /* =========================================================================
@@ -3154,4 +3159,10 @@ body.tahoe-flat-glass.theme-light,
 body.tahoe-flat-glass.theme-dark {
   --tahoe-glass-shadow: none;
   --tahoe-glass-shadow-raised: none;
+}
+
+body.is-mobile.tahoe-large-targets {
+  --nav-item-padding: 15px 16px 15px 30px;
+  --nav-item-parent-padding: 15px 16px 15px 30px;
+  --input-height: 50px;
 }
