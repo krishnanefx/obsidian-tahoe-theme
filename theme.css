@@ -167,9 +167,9 @@ body {
   --anim-motion-baseline: var(--tahoe-ease);
 
   /* Typography */
-  --font-interface-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --font-text-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --font-monospace-theme: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --font-interface-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font-text-theme: -apple-system, BlinkMacSystemFont, "SF Pro", "SF Pro Text", "Helvetica Neue", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font-monospace-theme: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Mono", Consolas, monospace;
 
   --font-ui-smaller: 11px;
   --font-ui-small: 13px;
@@ -1058,6 +1058,11 @@ body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) > .workspace-ta
   background: transparent;
   border: none;
   padding-inline-end: 10px;
+}
+/* Windows and Linux: keep clear of the window buttons at the top right, as
+   Obsidian does (the rule above would otherwise put the tab bar under them). */
+body.is-hidden-frameless:not(.is-fullscreen):not(.mod-macos) .mod-root .workspace-tabs.mod-top-right-space:not(.mod-stacked) > .workspace-tab-header-container {
+  padding-inline-end: calc(10px + var(--frame-right-space));
 }
 
 body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) > .workspace-tab-container {
